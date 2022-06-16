@@ -14,6 +14,7 @@
 using System;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Com.AugustCellars.CoAP.Net;
 using Com.AugustCellars.CoAP.Observe;
 using Com.AugustCellars.CoAP.OSCOAP;
@@ -296,7 +297,7 @@ namespace Com.AugustCellars.CoAP
         /// <exception cref="System.Threading.ThreadInterruptedException"></exception>
         public Response WaitForResponse()
         {
-            return WaitForResponse(System.Threading.Timeout.Infinite);
+            return WaitForResponse(TimeSpan.MaxValue);
         }
 
         /// <summary>
@@ -306,6 +307,11 @@ namespace Com.AugustCellars.CoAP
         /// <returns>the response, or null if timeout occured</returns>
         /// <exception cref="System.Threading.ThreadInterruptedException"></exception>
         public Response WaitForResponse(Int32 millisecondsTimeout)
+        {
+            return WaitForResponse(TimeSpan.FromMilliseconds(millisecondsTimeout));
+        }
+
+        public Response WaitForResponse(TimeSpan timeout, CancellationToken? cancellationToken = null)
         {
             // lazy initialization of a lock
             if (_sync == null) {
@@ -317,13 +323,34 @@ namespace Com.AugustCellars.CoAP
             }
 
             lock (_sync) {
-                if (_currentResponse == null &&
-                    !IsCancelled && !IsTimedOut && !IsRejected) {
-                    System.Threading.Monitor.Wait(_sync, millisecondsTimeout);
+                using (var timeoutCancellation = new CancellationTokenSource(timeout))
+                {
+                    if (cancellationToken == null)
+                    {
+                        WaitForResponseInternal(timeoutCancellation);
+                    }
+                    else
+                    {
+                        using (CancellationTokenSource cancelation =
+                               CancellationTokenSource.CreateLinkedTokenSource((CancellationToken) cancellationToken,
+                                   timeoutCancellation.Token))
+                        {
+                            WaitForResponseInternal(cancelation);
+                        }
+                    }
                 }
                 Response resp = _currentResponse;
                 _currentResponse = null;
                 return resp;
+            }
+        }
+
+        private void WaitForResponseInternal(CancellationTokenSource cancellation)
+        {
+            while (_currentResponse == null &&
+                !IsCancelled && !IsTimedOut && !IsRejected && cancellation.Token.IsCancellationRequested == false)
+            {
+                cancellation.Token.WaitHandle.WaitOne(50);
             }
         }
 #endregion
