@@ -183,6 +183,7 @@ It is intented primarily for research and verification work.
     <Compile Include="EndPoint\Resources\RemoteResource.cs" />
     <Compile Include="EndPoint\Resources\Resource.cs" />
     <Compile Include="ICoapConfig.cs" />
+    <Compile Include="ICoapObserveRelation.cs" />
     <Compile Include="ISecureSession.cs" />
     <Compile Include="ISession.cs" />
     <Compile Include="LinkAttribute.cs" />

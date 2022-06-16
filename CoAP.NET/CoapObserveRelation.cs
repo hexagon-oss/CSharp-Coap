@@ -24,11 +24,13 @@ namespace Com.AugustCellars.CoAP
     /// Provides a simple API to check whether a relation has successfully established and
     /// to cancel or refresh the relation.
     /// </summary>
-    public class CoapObserveRelation
+    public class CoapObserveRelation : ICoapObserveRelation
     {
         readonly ICoapConfig _config;
         readonly IEndPoint _endpoint;
+        private Response _current = null;
 
+        public event Action<Response> OnResponseUpdated;
         public bool Reconnect { get; set; } = true;
 
         public CoapObserveRelation(Request request, IEndPoint endpoint, ICoapConfig config)
@@ -50,7 +52,15 @@ namespace Com.AugustCellars.CoAP
         /// <summary>
         /// Return the most recent response that was received from the observe relationship.
         /// </summary>
-        public Response Current { get; set; }
+        public Response Current
+        {
+            get => _current;
+            set
+            {
+                _current = value;
+                OnResponseUpdated?.Invoke(_current);
+            }
+        }
 
         /// <summary>
         /// Return the orderer.  This is the filter function that is used to determine if
