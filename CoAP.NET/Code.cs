@@ -421,6 +421,10 @@ namespace Com.AugustCellars.CoAP
     public enum StatusCode
     {
         /// <summary>
+        /// 2.00 Ok
+        /// </summary>
+        Ok = 64,
+        /// <summary>
         /// 2.01 Created
         /// </summary>
         Created = 65,
