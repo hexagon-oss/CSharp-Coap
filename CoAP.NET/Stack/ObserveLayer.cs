@@ -135,6 +135,7 @@ namespace Com.AugustCellars.CoAP.Stack
 
                     return;
                 }
+                relation.Current = response;
 
                 if (relation.Reconnect) {
                     PrepareReregistration(exchange, response, msg => SendRequest(nextLayer, exchange, msg));
