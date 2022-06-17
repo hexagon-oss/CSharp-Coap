@@ -13,6 +13,7 @@
 
 using System;
 using System.Diagnostics.Tracing;
+using System.Threading;
 using Com.AugustCellars.CoAP.Net;
 using Com.AugustCellars.CoAP.Observe;
 using Org.BouncyCastle.Ocsp;
@@ -26,18 +27,16 @@ namespace Com.AugustCellars.CoAP
     /// </summary>
     public class CoapObserveRelation : ICoapObserveRelation
     {
-        readonly ICoapConfig _config;
         readonly IEndPoint _endpoint;
         private Response _current = null;
 
         public event Action<Response> OnResponseUpdated;
         public bool Reconnect { get; set; } = true;
 
-        public CoapObserveRelation(Request request, IEndPoint endpoint, ICoapConfig config)
+        public CoapObserveRelation(Request request, ICoapConfig config)
         {
-            _config = config;
             Request = request;
-            _endpoint = endpoint;
+            _endpoint = request.EndPoint;
             Orderer = new ObserveNotificationOrderer(config);
             Request.ObserveRelation = this;
 
@@ -81,11 +80,15 @@ namespace Com.AugustCellars.CoAP
             Canceled = true;
         }
 
+        public bool ProactiveCancel()
+        {
+            return ProactiveCancel(TimeSpan.Zero);
+        }
         /// <summary>
         /// Send a message to the resource being observed that we want to cancel
         /// the observation.
         /// </summary>
-        public void ProactiveCancel()
+        public bool ProactiveCancel(TimeSpan customTimeout, CancellationToken? cancellationToken = null)
         {
             Request cancel = Request.NewGet();
             // copy options, but set Observe to cancel
@@ -102,8 +105,10 @@ namespace Com.AugustCellars.CoAP
             cancel.Reregistering += OnReregister;
 
             cancel.Send(_endpoint);
+            bool success = cancel.WaitForResponse(customTimeout, cancellationToken) != null;
             // cancel old ongoing request
-            Request.IsCancelled = true;
+            ReactiveCancel();
+            return success;
         }
 
         public void UpdateETags(byte[][] eTags)

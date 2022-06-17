@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using Com.AugustCellars.CoAP.Observe;
 
 namespace Com.AugustCellars.CoAP
@@ -40,6 +41,12 @@ namespace Com.AugustCellars.CoAP
         /// Send a message to the resource being observed that we want to cancel
         /// the observation.
         /// </summary>
-        void ProactiveCancel();
+        bool ProactiveCancel();
+
+        /// <summary>
+        /// Send a message to the resource being observed that we want to cancel
+        /// the observation.
+        /// </summary>
+        bool ProactiveCancel(TimeSpan customTimeout, CancellationToken? cancellationToken);
     }
 }

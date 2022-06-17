@@ -717,8 +717,7 @@ namespace Com.AugustCellars.CoAP
 
         private CoapObserveRelation ObserveAsync(Request request, Action<Response> notify, Action<FailReason> error)
         {
-            IEndPoint endpoint = GetEffectiveEndpoint(request);
-            CoapObserveRelation relation = new CoapObserveRelation(request, endpoint, _config);
+            CoapObserveRelation relation = new CoapObserveRelation(request, _config);
 
             request.Respond += (o, e) =>
             {
@@ -741,7 +740,7 @@ namespace Com.AugustCellars.CoAP
             request.Rejected += (o, e) => fail(FailReason.Rejected);
             request.TimedOut += (o, e) => fail(FailReason.TimedOut);
 
-            Prepare(request, endpoint).Send();
+            Prepare(request, request.EndPoint).Send();
             return relation;
         }
 
