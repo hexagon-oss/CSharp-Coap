@@ -325,6 +325,12 @@ namespace Com.AugustCellars.CoAP
             lock (_sync) {
                 using (var timeoutCancellation = new CancellationTokenSource(timeout))
                 {
+                    EventHandler<ResponseEventArgs> resetTimeoutOnResponse = (o, rea) =>
+                    {
+                        timeoutCancellation.CancelAfter(timeout); // reset timeout after receiving a new response (large get)
+                    };
+                    Responding += resetTimeoutOnResponse;
+
                     if (cancellationToken == null)
                     {
                         WaitForResponseInternal(timeoutCancellation);
@@ -338,6 +344,8 @@ namespace Com.AugustCellars.CoAP
                             WaitForResponseInternal(cancelation);
                         }
                     }
+
+                    Responding -= resetTimeoutOnResponse;
                 }
                 Response resp = _currentResponse;
                 _currentResponse = null;
