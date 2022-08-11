@@ -478,7 +478,43 @@ namespace Com.AugustCellars.CoAP
         {
             return new Request(Method.DELETE);
         }
-#endregion
+        #endregion
+
+        public static bool UploadBlockWise(string uri, byte[] payload, int blockSize, CancellationToken cancellationToken, TimeSpan customTimeOut)
+        {
+            int bytesWritten = 0;
+            int blockNumber = 0;
+            bool isLastTransfer = false;
+            byte[] blockPayload = new byte[blockSize];
+            while (cancellationToken.IsCancellationRequested == false && isLastTransfer == false)
+            {
+                isLastTransfer = (bytesWritten + blockSize) >= payload.Length;
+                int currentBlockSize = blockSize;
+
+                if (isLastTransfer)
+                {
+                    currentBlockSize = payload.Length - bytesWritten;
+                    blockPayload = new byte[currentBlockSize];
+                }
+
+                Array.Copy(payload, bytesWritten, blockPayload, 0, currentBlockSize);
+
+                Request request = new Request(Method.PUT);
+                request.URI = new Uri(uri);
+                request.Size1 = payload.Length;
+                request.Block1 = new BlockOption(OptionType.Block1, blockNumber++, BlockOption.EncodeSZX(blockSize), !isLastTransfer);
+                request.SetPayload(blockPayload, MediaType.TextPlain);
+                request.Send();
+                var coapResponse = request.WaitForResponse(customTimeOut, cancellationToken);
+                if (coapResponse == null)
+                {
+                    return false;
+                }
+                bytesWritten += currentBlockSize;
+            }
+
+            return true;
+        }
 
         /// <summary>
         /// Set the context structure used to OSCORE protect the message

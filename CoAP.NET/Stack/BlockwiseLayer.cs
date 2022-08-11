@@ -278,8 +278,14 @@ namespace Com.AugustCellars.CoAP.Stack
 
             BlockOption block1 = response.Block1;
             if (block1 != null) {
-                // TODO: What if request has not been sent blockwise (server error)
+                // TODO: W hat if request has not been sent blockwise (server error)
                 log.Debug(m => m("Response acknowledges block " + block1));
+
+                if (exchange.RequestBlockStatus == null && !response.HasOption(OptionType.Block2))
+                {
+                    exchange.RequestBlockStatus = new BlockwiseStatus(exchange.Request.ContentFormat,
+                        exchange.Request.Block1.NUM, exchange.Request.Block1.SZX);
+                }
                 BlockwiseStatus status = exchange.RequestBlockStatus;
 
                 if (exchange.Request.Session == null) {
