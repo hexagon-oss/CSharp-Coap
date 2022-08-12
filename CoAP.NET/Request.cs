@@ -27,7 +27,7 @@ namespace Com.AugustCellars.CoAP
     /// 1. operations to answer a request by a response using respond()
     /// 2. different ways to handle incoming responses: receiveResponse() or Respond event
     /// </summary>
-    public class Request : Message
+    public class Request : Message, IRequest
     {
         private Uri _uri;
         private Response _currentResponse;

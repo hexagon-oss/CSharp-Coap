@@ -15,7 +15,7 @@ namespace Com.AugustCellars.CoAP
         /// <summary>
         /// Return the original request that caused the observe relationship to be established.
         /// </summary>
-        Request Request { get; }
+        IRequest Request { get; }
 
         /// <summary>
         /// Return the most recent response that was received from the observe relationship.

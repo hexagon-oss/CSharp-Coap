@@ -33,7 +33,7 @@ namespace Com.AugustCellars.CoAP
         public event Action<Response> OnResponseUpdated;
         public bool Reconnect { get; set; } = true;
 
-        public CoapObserveRelation(Request request, ICoapConfig config)
+        public CoapObserveRelation(IRequest request, ICoapConfig config)
         {
             Request = request;
             _endpoint = request.EndPoint;
@@ -46,7 +46,7 @@ namespace Com.AugustCellars.CoAP
         /// <summary>
         /// Return the original request that caused the observe relationship to be established.
         /// </summary>
-        public Request Request { get; private set; }
+        public IRequest Request { get; private set; }
 
         /// <summary>
         /// Return the most recent response that was received from the observe relationship.
@@ -90,7 +90,7 @@ namespace Com.AugustCellars.CoAP
         /// </summary>
         public bool ProactiveCancel(TimeSpan customTimeout, CancellationToken? cancellationToken = null)
         {
-            Request cancel = Request.NewGet();
+            Request cancel = new Request(Method.GET);
             // copy options, but set Observe to cancel
             cancel.SetOptions(Request.GetOptions());
             cancel.MarkObserveCancel();
@@ -99,7 +99,7 @@ namespace Com.AugustCellars.CoAP
             cancel.Destination = Request.Destination;
 
             // dispatch final response to the same message observers
-            cancel.CopyEventHandler(Request);
+            cancel.CopyEventHandler(Request as Request);
             Reconnect = false;
             cancel.ObserveRelation = this;
             cancel.Reregistering += OnReregister;
@@ -113,7 +113,7 @@ namespace Com.AugustCellars.CoAP
 
         public void UpdateETags(byte[][] eTags)
         {
-            Request newRequest = Request.NewGet();
+            Request newRequest = new Request(Method.GET);
             //  Copy over the options
             newRequest.SetOptions(Request.GetOptions());
             newRequest.ClearETags();
@@ -123,7 +123,7 @@ namespace Com.AugustCellars.CoAP
 
             newRequest.Token = Request.Token;
             newRequest.Destination = Request.Destination;
-            newRequest.CopyEventHandler(Request);
+            newRequest.CopyEventHandler(Request as Request);
             newRequest.Reregistering += OnReregister;
             newRequest.ObserveRelation = this;
 
