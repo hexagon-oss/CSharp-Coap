@@ -10,6 +10,7 @@
  */
 
 using System;
+using System.Globalization;
 #if true // NETSTANDARD1_3
 using System.Threading;
 #else
@@ -22,7 +23,7 @@ namespace Com.AugustCellars.CoAP.Stack
 {
     public class BlockwiseLayer : AbstractLayer
     {
-        private static readonly ILogger log = LogManager.GetLogger(typeof(BlockwiseLayer));
+        private static readonly ILogger log = Logging.GetLogger(typeof(BlockwiseLayer));
 
         private int _maxMessageSize;
         private int _defaultBlockSize;
@@ -36,7 +37,7 @@ namespace Com.AugustCellars.CoAP.Stack
             _maxMessageSize = config.MaxMessageSize;
             _defaultBlockSize = config.DefaultBlockSize;
             _blockTimeout = config.BlockwiseStatusLifetime;
-            log.Debug(m => m("BlockwiseLayer uses MaxMessageSize: {0} and DefaultBlockSize: {1}", _maxMessageSize,
+            log.Debug(string.Format(CultureInfo.InvariantCulture, "BlockwiseLayer uses MaxMessageSize: {0} and DefaultBlockSize: {1}", _maxMessageSize,
                              _defaultBlockSize));
 
             config.PropertyChanged += ConfigChanged;
@@ -78,7 +79,7 @@ namespace Com.AugustCellars.CoAP.Stack
             }
             else if (RequiresBlockwise(request)) {
                 // This must be a large POST or PUT request
-                log.Debug(m => m("Request payload {0}/{1} requires Blockwise.", request.PayloadSize, _maxMessageSize));
+                log.Debug(string.Format(CultureInfo.InvariantCulture, "Request payload {0}/{1} requires Blockwise.", request.PayloadSize, _maxMessageSize));
 
                 BlockwiseStatus status = FindRequestBlockStatus(exchange, request);
                 Request block = GetNextRequestBlock(request, status);
@@ -103,7 +104,7 @@ namespace Com.AugustCellars.CoAP.Stack
 
                 // This must be a large POST or PUT request
                 BlockOption block1 = request.Block1;
-                log.Debug(m => m("Request contains block1 option {0}", block1));
+                log.Debug(string.Format(CultureInfo.InvariantCulture, "Request contains block1 option {0}", block1));
 
                 BlockwiseStatus status = FindRequestBlockStatus(exchange, request);
                 if (block1.NUM == 0 && status.CurrentNUM > 0) {
@@ -161,7 +162,7 @@ namespace Com.AugustCellars.CoAP.Stack
                 }
                 else {
                     // ERROR, wrong number, Incomplete
-                    log.Warn(m => m("Wrong block number. Expected {0} but received {1}. Respond with 4.08 (Request Entity Incomplete).",
+                    log.Warn(string.Format(CultureInfo.InvariantCulture, "Wrong block number. Expected {0} but received {1}. Respond with 4.08 (Request Entity Incomplete).",
                                      status.CurrentNUM, block1.NUM));
                     Response error = Response.CreateResponse(request, StatusCode.RequestEntityIncomplete);
                     error.AddOption(new BlockOption(OptionType.Block1, block1.NUM, block1.SZX, block1.M));
@@ -185,12 +186,12 @@ namespace Com.AugustCellars.CoAP.Stack
 
                 if (status.Complete) {
                     // clean up blockwise status
-                    log.Debug(m => m("Ongoing is complete {0}", status));
+                    log.Debug(string.Format(CultureInfo.InvariantCulture, "Ongoing is complete {0}", status));
                     exchange.ResponseBlockStatus = null;
                     ClearBlockCleanup(exchange);
                 }
                 else {
-                    log.Debug(m => m("Ongoing is continuing {0}", status));
+                    log.Debug(string.Format(CultureInfo.InvariantCulture, "Ongoing is continuing {0}", status));
                 }
 
                 exchange.CurrentResponse = block;
@@ -214,7 +215,7 @@ namespace Com.AugustCellars.CoAP.Stack
             }
 
             if (RequiresBlockwise(exchange, response)) {
-                log.Debug(m => m("Response payload {0}/{1} requires Blockwise", response.PayloadSize, _maxMessageSize));
+                log.Debug(string.Format(CultureInfo.InvariantCulture, "Response payload {0}/{1} requires Blockwise", response.PayloadSize, _maxMessageSize));
 
                 BlockwiseStatus status = FindResponseBlockStatus(exchange, response);
 
@@ -231,12 +232,12 @@ namespace Com.AugustCellars.CoAP.Stack
 
                 if (status.Complete) {
                     // clean up blockwise status
-                    log.Debug(m => m("Ongoing finished on first block {0}", status));
+                    log.Debug(string.Format(CultureInfo.InvariantCulture, "Ongoing finished on first block {0}", status));
                     exchange.ResponseBlockStatus = null;
                     ClearBlockCleanup(exchange);
                 }
                 else {
-                    log.Debug(m => m("Ongoing started {0}", status));
+                    log.Debug(string.Format(CultureInfo.InvariantCulture, "Ongoing started {0}", status));
                 }
 
                 exchange.CurrentResponse = block;
@@ -278,14 +279,8 @@ namespace Com.AugustCellars.CoAP.Stack
 
             BlockOption block1 = response.Block1;
             if (block1 != null) {
-                // TODO: W hat if request has not been sent blockwise (server error)
-                log.Debug(m => m("Response acknowledges block " + block1));
-
-                if (exchange.RequestBlockStatus == null && !response.HasOption(OptionType.Block2))
-                {
-                    exchange.RequestBlockStatus = new BlockwiseStatus(exchange.Request.ContentFormat,
-                        exchange.Request.Block1.NUM, exchange.Request.Block1.SZX);
-                }
+                // TODO: What if request has not been sent blockwise (server error)
+                log.Debug(string.Format(CultureInfo.InvariantCulture, "Response acknowledges block " + block1));
                 BlockwiseStatus status = exchange.RequestBlockStatus;
 
                 if (exchange.Request.Session == null) {
@@ -300,7 +295,7 @@ namespace Com.AugustCellars.CoAP.Stack
                     // Send next block
                     int currentSize = 1 << (4 + status.CurrentSZX);
                     int nextNum = status.CurrentNUM + currentSize / block1.Size;
-                    log.Debug(m => m("Send next block num = " + nextNum));
+                    log.Debug(string.Format(CultureInfo.InvariantCulture, "Send next block num = " + nextNum));
                     status.CurrentNUM = nextNum;
                     status.CurrentSZX = block1.SZX;
                     Request nextBlock = GetNextRequestBlock(exchange.Request, status);
@@ -404,7 +399,7 @@ namespace Com.AugustCellars.CoAP.Stack
                         base.SendRequest(nextLayer, exchange, block);
                     }
                     else {
-                        log.Debug(m => m("We have received all {0} blocks of the response. Assemble and deliver.",
+                        log.Debug(string.Format(CultureInfo.InvariantCulture, "We have received all {0} blocks of the response. Assemble and deliver.",
                                          status.BlockCount));
                         Response assembled = new Response(response.StatusCode);
                         AssembleMessage(status, assembled, response);
@@ -422,7 +417,7 @@ namespace Com.AugustCellars.CoAP.Stack
                             exchange.ResponseBlockStatus = null;
                         }
 
-                        log.Debug(m => m("Assembled response: {0}", assembled));
+                        log.Debug(string.Format(CultureInfo.InvariantCulture, "Assembled response: {0}", assembled));
                         exchange.Response = assembled;
                         base.ReceiveResponse(nextLayer, exchange, assembled);
                     }
@@ -431,8 +426,8 @@ namespace Com.AugustCellars.CoAP.Stack
                     // ERROR, wrong block number (server error)
                     // TODO: This scenario is not specified in the draft.
                     // Currently, we reject it and cancel the request.
-                    log.Warn(m => m("Wrong block number. Expected {0} but received {1}" +
-                                    ". Reject response; exchange has failed.", status.CurrentNUM, block2.NUM));
+                    log.Warn(string.Format(CultureInfo.InvariantCulture, "Wrong block number. Expected {0} but received {1}" +
+                                                                         ". Reject response; exchange has failed.", status.CurrentNUM, block2.NUM));
                     if (response.Type == MessageType.CON) {
                         EmptyMessage rst = EmptyMessage.NewRST(response);
                         base.SendEmptyMessage(nextLayer, exchange, rst);
@@ -449,8 +444,8 @@ namespace Com.AugustCellars.CoAP.Stack
             if (request.HasOption(OptionType.Block2)) {
                 BlockOption block2 = request.Block2;
                 BlockwiseStatus status2 = new BlockwiseStatus(request.ContentType, block2.NUM, block2.SZX);
-                log.Debug(m => m("Request with early block negotiation " + block2 + 
-                                 ". Create and set new Block2 status: " + status2));
+                log.Debug(string.Format(CultureInfo.InvariantCulture, "Request with early block negotiation " + block2 + 
+                                                                      ". Create and set new Block2 status: " + status2));
                 exchange.ResponseBlockStatus = status2;
             }
         }
@@ -468,10 +463,10 @@ namespace Com.AugustCellars.CoAP.Stack
                     CurrentSZX = BlockOption.EncodeSZX(_defaultBlockSize)
                 };
                 exchange.RequestBlockStatus = status;
-                log.Debug(m => m("There is no assembler status yet. Create and set new Block1 status: {0}", status));
+                log.Debug(string.Format(CultureInfo.InvariantCulture, "There is no assembler status yet. Create and set new Block1 status: {0}", status));
             }
             else {
-                log.Debug(m => m("Current Block1 status: {0}", status));
+                log.Debug(string.Format(CultureInfo.InvariantCulture, "Current Block1 status: {0}", status));
             }
             // sets a timeout to complete exchange
             PrepareBlockCleanup(exchange);
@@ -497,10 +492,10 @@ namespace Com.AugustCellars.CoAP.Stack
                 };
                 exchange.ResponseBlockStatus = status;
 
-                log.Debug(m => m("There is no blockwise status yet. Create and set new Block2 status: {0}", status));
+                log.Debug(string.Format(CultureInfo.InvariantCulture, "There is no blockwise status yet. Create and set new Block2 status: {0}", status));
             }
             else {
-                log.Debug(m => m("Current Block2 status: {0}", status));
+                log.Debug(string.Format(CultureInfo.InvariantCulture, "Current Block2 status: {0}", status));
             }
 
             // sets a timeout to complete exchange
@@ -716,10 +711,10 @@ namespace Com.AugustCellars.CoAP.Stack
         private void BlockwiseTimeout(Exchange exchange)
         {
             if (exchange.Request == null) {
-                log.Info(m => m("Block1 transfer timed out: {0}", exchange.CurrentRequest));
+                log.Info(string.Format(CultureInfo.InvariantCulture, "Block1 transfer timed out: {0}", exchange.CurrentRequest));
             }
             else {
-                log.Info(m => m("Block2 transfer timed out: {0}", exchange.Request));
+                log.Info(string.Format(CultureInfo.InvariantCulture, "Block2 transfer timed out: {0}", exchange.Request));
             }
             exchange.Complete = true;
         }

@@ -57,7 +57,7 @@ namespace Com.AugustCellars.CoAP.DTLS
         [TestInitialize]
         public void SetupServer()
         {
-            Com.AugustCellars.CoAP.Log.LogManager.Level = Com.AugustCellars.CoAP.Log.LogLevel.Fatal;
+            Com.AugustCellars.CoAP.Log.Logging.Level = Com.AugustCellars.CoAP.Log.LogLevel.Fatal;
             CreateServer();
         }
 

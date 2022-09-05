@@ -53,7 +53,7 @@ namespace Com.AugustCellars.CoAP
 
         private const double Default_AckTimeoutScale = 2D;
 
-        private const int Default_MaxMessageSize = 1024;
+        private const int Default_MaxMessageSize = 128;
         private const int Default_BlockwiseStatusLifetime = 10 * 60 * 1000; // ms
         private const bool Default_UseRandomIdStart = true;
         private const int Default_TokenLength = 4;
@@ -67,7 +67,7 @@ namespace Com.AugustCellars.CoAP
         private const int Default_NotificationReregistrationBackoff = 2000; // ms
         private const int Default_ChannelReceivePacketSize = 2048;
 
-        private const int Default_Oscoap_MaxMessageSize = 1024;
+        private const int Default_Oscoap_MaxMessageSize = 128;
         private const int Default_Oscoap_DefaultBlockSize = CoapConstants.DefaultBlockSize;
         private const int Default_Oscoap_BlockwiseStatusLifetime = 10 *60 * 1000; // ms
         private const bool Default_Oscoap_ReplayWindow = true;

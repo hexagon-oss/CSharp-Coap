@@ -105,7 +105,7 @@ namespace Com.AugustCellars.CoAP
         public static readonly Regex Cardinal = new Regex("\\G\\d+");
 #endif
 
-        private static readonly ILogger _Log = LogManager.GetLogger(typeof(LinkFormat));
+        private static readonly ILogger _Log = Logging.GetLogger(typeof(LinkFormat));
 
         //  Mapping defined in the RFC
         public static readonly Dictionary<string, CBORObject> CborAttributeKeys = new Dictionary<string, CBORObject>() {

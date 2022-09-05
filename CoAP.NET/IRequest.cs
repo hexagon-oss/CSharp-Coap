@@ -125,7 +125,7 @@ namespace Com.AugustCellars.CoAP
         /// Wait for a response.
         /// </summary>
         /// <exception cref="System.Threading.ThreadInterruptedException"></exception>
-        Response WaitForResponse();
+        IResponse WaitForResponse();
 
         /// <summary>
         /// Wait for a response.
@@ -133,8 +133,8 @@ namespace Com.AugustCellars.CoAP
         /// <param name="millisecondsTimeout">the maximum time to wait in milliseconds</param>
         /// <returns>the response, or null if timeout occured</returns>
         /// <exception cref="System.Threading.ThreadInterruptedException"></exception>
-        Response WaitForResponse(Int32 millisecondsTimeout);
+        IResponse WaitForResponse(int millisecondsTimeout);
 
-        Response WaitForResponse(TimeSpan timeout, CancellationToken? cancellationToken = null);
+        IResponse WaitForResponse(TimeSpan timeout, CancellationToken? cancellationToken = null);
     }
 }

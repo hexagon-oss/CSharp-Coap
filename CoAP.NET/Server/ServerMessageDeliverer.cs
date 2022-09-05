@@ -26,7 +26,7 @@ namespace Com.AugustCellars.CoAP.Server
     /// </summary>
     public class ServerMessageDeliverer : IMessageDeliverer
     {
-        static readonly ILogger _Log = LogManager.GetLogger(typeof(ServerMessageDeliverer));
+        static readonly ILogger _Log = Logging.GetLogger(typeof(ServerMessageDeliverer));
 
         readonly ICoapConfig _config;
         readonly IResource _root;

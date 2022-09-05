@@ -257,7 +257,7 @@ namespace CoAP.Test.Std10.Observe
             CoapConfig clientConfig = new CoapConfig() {
                 MaxRetransmit = 0
             };
-            LogManager.Level = LogLevel.Debug;
+            Logging.Level = LogLevel.Debug;
 
             Pump = new MockMessagePump();
 

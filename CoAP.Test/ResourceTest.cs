@@ -12,7 +12,7 @@ namespace Com.AugustCellars.CoAP
     {
         public ResourceTest()
         {
-            Log.LogManager.Level = Log.LogLevel.Fatal;
+            Log.Logging.Level = Log.LogLevel.Fatal;
         }
 
         [TestMethod]

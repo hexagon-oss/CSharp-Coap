@@ -27,7 +27,7 @@ namespace Com.AugustCellars.CoAP.DTLS
         public KeySet CwtTrustKeySet { get; set; }
 
         public EventHandler<TlsEvent> TlsEventHandler;
-        private readonly ILogger _log = LogManager.GetLogger(nameof(DTLSClientChannel));
+        private readonly ILogger _log = Logging.GetLogger(typeof(DTLSClientChannel));
 
 
         public DTLSClientChannel(TlsKeyPair userKey, int port)

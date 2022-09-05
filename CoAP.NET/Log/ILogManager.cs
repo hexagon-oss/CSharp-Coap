@@ -19,13 +19,15 @@ namespace Com.AugustCellars.CoAP.Log
     public interface ILogManager
     {
         /// <summary>
-        /// Gets a logger of the given type.
+        /// Adds a listener logger that the logging instances will write to.
         /// </summary>
-        ILogger GetLogger(Type type);
+        /// <param name="logger">The logger to be added.</param>
+        void AddLogWriter(ILogWriter logger);
 
         /// <summary>
-        /// Gets a named logger.
+        /// Removes a listener logger.
         /// </summary>
-        ILogger GetLogger(String name);
+        /// <param name="logger"></param>
+        void RemoveLogWriter(ILogWriter logger);
     }
 }

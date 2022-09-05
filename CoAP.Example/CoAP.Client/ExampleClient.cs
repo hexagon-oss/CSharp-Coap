@@ -180,7 +180,7 @@ namespace Com.AugustCellars.CoAP.Examples
                         Console.WriteLine("Receiving response...");
 
                         Response response = null;
-                        response = request.WaitForResponse();
+                        response = request.WaitForResponse() as Response;
 
                         if (response == null)
                         {

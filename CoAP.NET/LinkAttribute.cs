@@ -10,6 +10,7 @@
  */
 
 using System;
+using System.Globalization;
 using System.Text;
 using Com.AugustCellars.CoAP.Log;
 
@@ -21,7 +22,7 @@ namespace Com.AugustCellars.CoAP
     /// </summary>
     public class LinkAttribute : IComparable<LinkAttribute>
     {
-        private static readonly ILogger _Log = LogManager.GetLogger(typeof(LinkAttribute));
+        private static readonly ILogger _Log = Logging.GetLogger(typeof(LinkAttribute));
 
         /// <summary>
         /// Initializes an attribute.
@@ -85,7 +86,7 @@ namespace Com.AugustCellars.CoAP
                         builder.Append(((Int32) Value));
                     }
                     else {
-                        _Log.Error(m => m("Serializing attribute of unexpected type: {0} ({1})", Name, Value.GetType().Name));
+                        _Log.Error(string.Format(CultureInfo.InvariantCulture, "Serializing attribute of unexpected type: {0} ({1})", Name, Value.GetType().Name));
                     }
                 }
             }

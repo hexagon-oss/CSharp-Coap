@@ -36,7 +36,7 @@ namespace CoAP.Test.Std10.OSCOAP
         [TestInitialize]
         public void SetupServer()
         {
-            Com.AugustCellars.CoAP.Log.LogManager.Level = Com.AugustCellars.CoAP.Log.LogLevel.Debug;
+            Com.AugustCellars.CoAP.Log.Logging.Level = Com.AugustCellars.CoAP.Log.LogLevel.Debug;
             _config = new CoapConfig();
             _config.OSCOAP_DefaultBlockSize = 32;
             _config.OSCOAP_MaxMessageSize = 32;
@@ -112,7 +112,7 @@ namespace CoAP.Test.Std10.OSCOAP
                 request.Send(_clientEndpoint);
 
                 // receive response and check
-                Response response = request.WaitForResponse(/*1000*/);
+                IResponse response = request.WaitForResponse(/*1000*/);
 
                 Assert.IsNotNull(response);
                 payload = response.PayloadString;
@@ -136,7 +136,7 @@ namespace CoAP.Test.Std10.OSCOAP
                 request.Send(_clientEndpoint);
 
                 // receive response and check
-                Response response = request.WaitForResponse(/*1000*/);
+                IResponse response = request.WaitForResponse(/*1000*/);
 
                 Assert.IsNotNull(response);
                 payload = response.PayloadString;

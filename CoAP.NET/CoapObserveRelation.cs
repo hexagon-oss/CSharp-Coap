@@ -31,7 +31,7 @@ namespace Com.AugustCellars.CoAP
         private Response _current = null;
 
         public event Action<Response> OnResponseUpdated;
-        public bool Reconnect { get; set; } = true;
+        public bool Reconnect { get; set; } = false;
 
         public CoapObserveRelation(IRequest request, ICoapConfig config)
         {

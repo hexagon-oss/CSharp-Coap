@@ -26,7 +26,7 @@ namespace Com.AugustCellars.CoAP.EndPoint.Resources
     /// </summary>
     public partial class RemoteResource : IComparable<RemoteResource>, IResource
     {
-        private static readonly ILogger log = LogManager.GetLogger(typeof(Resource));
+        private static readonly ILogger log = Logging.GetLogger(typeof(Resource));
 
         private Int32 _totalSubResourceCount;
         private HashSet<LinkAttribute> _attributes;

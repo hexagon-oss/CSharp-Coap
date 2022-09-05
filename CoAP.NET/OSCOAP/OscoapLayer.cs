@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Text;
 
 using Com.AugustCellars.CoAP.Log;
@@ -26,7 +27,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
 {
     public class OscoapLayer : AbstractLayer
     {
-        static readonly ILogger _Log = LogManager.GetLogger(typeof(OscoapLayer));
+        static readonly ILogger _Log = Logging.GetLogger(typeof(OscoapLayer));
         static readonly byte[] fixedHeader = new byte[] {0x40, 0x01, 0xff, 0xff};
         bool _replayWindow;
         readonly ConcurrentDictionary<Exchange.KeyUri, BlockHolder> _ongoingExchanges = new ConcurrentDictionary<Exchange.KeyUri, BlockHolder>();
@@ -86,7 +87,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
 
                 if (ctx.Sender.SequenceNumberExhausted) {
                     OscoreEvent e = new OscoreEvent(OscoreEvent.EventCode.PivExhaustion, null, null, ctx, ctx.Sender);
-                    _Log.Info(m => m($"Partial IV exhaustion occured for {Base64.ToBase64String(ctx.Sender.Key)}"));
+                    _Log.Info($"Partial IV exhaustion occured for {Base64.ToBase64String(ctx.Sender.Key)}");
 
                     ctx.OnEvent(e);
                     if (e.SecurityContext == ctx) {
@@ -107,7 +108,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
 
                 MoveRequestHeaders(request, encryptedRequest);
 
-                _Log.Info(m => m("New inner response message\n{0}", encryptedRequest.ToString()));
+                _Log.Info(string.Format(CultureInfo.InvariantCulture, "New inner response message\n{0}", encryptedRequest.ToString()));
 
                 ctx.Sender.IncrementSequenceNumber();
                 if (ctx.Sender.SendSequenceNumberUpdate) {
@@ -142,7 +143,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
                 aad.Add(CBORObject.FromObject(ctx.Sender.PartialIV));
                 aad.Add(CBORObject.FromObject(new byte[0]));  // I options go here
 
-                _Log.Info(m => m($"SendRequest: AAD = {BitConverter.ToString(aad.EncodeToBytes())}"));
+                _Log.Info(string.Format(CultureInfo.InvariantCulture, $"SendRequest: AAD = {BitConverter.ToString(aad.EncodeToBytes())}"));
 
                 enc.SetExternalData(aad.EncodeToBytes());
                 enc.AddAttribute(HeaderKeys.IV, ctx.Sender.GetIV(ctx.Sender.PartialIV), Attributes.DO_NOT_SEND);
@@ -153,7 +154,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
                     enc.AddAttribute(HeaderKeys.KidContext, CBORObject.FromObject(ctx.GroupId), Attributes.DO_NOT_SEND);
                 }
 
-                _Log.Info(m => m("SendRequest: AAD = {0}\nSendRequest: IV = {1}\nSendRequest: Key = {2}",
+                _Log.Info(string.Format(CultureInfo.InvariantCulture, "SendRequest: AAD = {0}\nSendRequest: IV = {1}\nSendRequest: Key = {2}",
                                  BitConverter.ToString(aad.EncodeToBytes()),
                                                        BitConverter.ToString(ctx.Sender.GetIV(ctx.Sender.PartialIV).GetByteString()),
                                                        BitConverter.ToString(ctx.Sender.Key)));
@@ -165,7 +166,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
                     cs1 = new CounterSignature1(ctx.Sender.SigningKey);
                     cs1.AddAttribute(HeaderKeys.Algorithm, ctx.Sender.SigningAlgorithm, Attributes.DO_NOT_SEND);
                     aad.Add(optionValue);
-                    _Log.Info(m => m("SendRequest: AAD for Signature = {0}", BitConverter.ToString(aad.EncodeToBytes())));
+                    _Log.Info(string.Format(CultureInfo.InvariantCulture, "SendRequest: AAD for Signature = {0}", BitConverter.ToString(aad.EncodeToBytes())));
                     cs1.SetExternalData(aad.EncodeToBytes());
                     cs1.SetObject(enc);
                     enc.CounterSigner1 = cs1;
@@ -205,7 +206,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
                 Option op = request.GetFirstOption(OptionType.Oscore);
                 request.RemoveOptions(OptionType.Oscore);
 
-                _Log.Info(m => m("Incoming Request: {0}", Utils.ToString(request)));
+                _Log.Info(string.Format(CultureInfo.InvariantCulture, "Incoming Request: {0}", Utils.ToString(request)));
 
                 Encrypt0Message msg = Uncompress(op.RawValue);
                 if (msg == null) {
@@ -329,12 +330,12 @@ namespace Com.AugustCellars.CoAP.OSCOAP
                         }
 
                         if (_replayWindow && recip.ReplayWindow.HitTest(seqNo)) {
-                            _Log.Info(m => m("Hit test on {0} failed", seqNo));
+                            _Log.Info(string.Format(CultureInfo.InvariantCulture, "Hit test on {0} failed", seqNo));
                             responseString = "Hit test - duplicate";
                             continue;
                         }
                         else {
-                            if (!_replayWindow) _Log.Info(m => m("Hit test disabled"));
+                            if (!_replayWindow) _Log.Info(string.Format(CultureInfo.InvariantCulture, "Hit test disabled"));
                         }
 
                         aad[1] = CBORObject.NewArray();
@@ -492,7 +493,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
 
                 if (ctx.Sender.SequenceNumberExhausted && response.HasOption(OptionType.Observe)) {
                     OscoreEvent e = new OscoreEvent(OscoreEvent.EventCode.PivExhaustion, null, null, ctx, ctx.Sender);
-                    _Log.Info(m => m($"Partial IV exhaustion occured for {Base64.ToBase64String(ctx.Sender.Key)}"));
+                    _Log.Info(string.Format(CultureInfo.InvariantCulture, $"Partial IV exhaustion occured for {Base64.ToBase64String(ctx.Sender.Key)}"));
 
                     ctx.OnEvent(e);
                     ctx = e.SecurityContext;
@@ -582,8 +583,8 @@ namespace Com.AugustCellars.CoAP.OSCOAP
                     enc.AddAttribute(HeaderKeys.IV, iv, Attributes.DO_NOT_SEND);
                 }
 
-                _Log.Info(m => m($"SendResponse: IV = {BitConverter.ToString(enc.FindAttribute(HeaderKeys.IV, Attributes.DO_NOT_SEND).GetByteString())}"));
-                _Log.Info(m => m($"SendResponse: Key = {BitConverter.ToString(ctx.Sender.Key)}"));
+                _Log.Info(string.Format(CultureInfo.InvariantCulture, $"SendResponse: IV = {BitConverter.ToString(enc.FindAttribute(HeaderKeys.IV, Attributes.DO_NOT_SEND).GetByteString())}"));
+                _Log.Info(string.Format(CultureInfo.InvariantCulture, $"SendResponse: Key = {BitConverter.ToString(ctx.Sender.Key)}"));
 
                 byte[] optionValue = BuildOscoreOption(enc);
 
@@ -762,10 +763,10 @@ namespace Com.AugustCellars.CoAP.OSCOAP
 
                 msg.SetExternalData(aad.EncodeToBytes());
 
-                _Log.Info(m => m($"fServerIv = {fServerIv}"));
-                _Log.Info(m => m("ReceiveResponse: AAD = " + BitConverter.ToString(aad.EncodeToBytes())));
-                _Log.Info(m => m($"ReceiveResponse: IV = {BitConverter.ToString(fullIV.GetByteString())}"));
-                _Log.Info(m => m($"ReceiveResponse: Key = {BitConverter.ToString(recip.Key)}"));
+                _Log.Info(string.Format(CultureInfo.InvariantCulture, $"fServerIv = {fServerIv}"));
+                _Log.Info(string.Format(CultureInfo.InvariantCulture, "ReceiveResponse: AAD = " + BitConverter.ToString(aad.EncodeToBytes())));
+                _Log.Info(string.Format(CultureInfo.InvariantCulture, $"ReceiveResponse: IV = {BitConverter.ToString(fullIV.GetByteString())}"));
+                _Log.Info(string.Format(CultureInfo.InvariantCulture, $"ReceiveResponse: Key = {BitConverter.ToString(recip.Key)}"));
 
                 if (ctx.IsGroupContext) {
                     aad.Add(op.RawValue);

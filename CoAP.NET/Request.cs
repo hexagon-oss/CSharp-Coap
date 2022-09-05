@@ -295,7 +295,7 @@ namespace Com.AugustCellars.CoAP
         /// Wait for a response.
         /// </summary>
         /// <exception cref="System.Threading.ThreadInterruptedException"></exception>
-        public Response WaitForResponse()
+        public IResponse WaitForResponse()
         {
             return WaitForResponse(TimeSpan.MaxValue);
         }
@@ -306,12 +306,12 @@ namespace Com.AugustCellars.CoAP
         /// <param name="millisecondsTimeout">the maximum time to wait in milliseconds</param>
         /// <returns>the response, or null if timeout occured</returns>
         /// <exception cref="System.Threading.ThreadInterruptedException"></exception>
-        public Response WaitForResponse(Int32 millisecondsTimeout)
+        public IResponse WaitForResponse(int millisecondsTimeout)
         {
             return WaitForResponse(TimeSpan.FromMilliseconds(millisecondsTimeout));
         }
 
-        public Response WaitForResponse(TimeSpan timeout, CancellationToken? cancellationToken = null)
+        public IResponse WaitForResponse(TimeSpan timeout, CancellationToken? cancellationToken = null)
         {
             // lazy initialization of a lock
             if (_sync == null) {
@@ -478,43 +478,7 @@ namespace Com.AugustCellars.CoAP
         {
             return new Request(Method.DELETE);
         }
-        #endregion
-
-        public static bool UploadBlockWise(string uri, byte[] payload, int blockSize, CancellationToken cancellationToken, TimeSpan customTimeOut)
-        {
-            int bytesWritten = 0;
-            int blockNumber = 0;
-            bool isLastTransfer = false;
-            byte[] blockPayload = new byte[blockSize];
-            while (cancellationToken.IsCancellationRequested == false && isLastTransfer == false)
-            {
-                isLastTransfer = (bytesWritten + blockSize) >= payload.Length;
-                int currentBlockSize = blockSize;
-
-                if (isLastTransfer)
-                {
-                    currentBlockSize = payload.Length - bytesWritten;
-                    blockPayload = new byte[currentBlockSize];
-                }
-
-                Array.Copy(payload, bytesWritten, blockPayload, 0, currentBlockSize);
-
-                Request request = new Request(Method.PUT);
-                request.URI = new Uri(uri);
-                request.Size1 = payload.Length;
-                request.Block1 = new BlockOption(OptionType.Block1, blockNumber++, BlockOption.EncodeSZX(blockSize), !isLastTransfer);
-                request.SetPayload(blockPayload, MediaType.TextPlain);
-                request.Send();
-                var coapResponse = request.WaitForResponse(customTimeOut, cancellationToken);
-                if (coapResponse == null)
-                {
-                    return false;
-                }
-                bytesWritten += currentBlockSize;
-            }
-
-            return true;
-        }
+#endregion
 
         /// <summary>
         /// Set the context structure used to OSCORE protect the message

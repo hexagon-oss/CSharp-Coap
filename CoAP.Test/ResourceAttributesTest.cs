@@ -17,7 +17,7 @@ namespace Com.AugustCellars.CoAP
         [TestInitialize]
         public void Setup()
         {
-            Log.LogManager.Level = Log.LogLevel.Fatal;
+            Log.Logging.Level = Log.LogLevel.Fatal;
             _root = new Resource(String.Empty);
             Resource sensors = new Resource("sensors");
             Resource temp = new Resource("temp");

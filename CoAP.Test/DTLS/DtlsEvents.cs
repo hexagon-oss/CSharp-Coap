@@ -50,7 +50,7 @@ namespace Com.AugustCellars.CoAP.DTLS
         [TestInitialize]
         public void SetupServer()
         {
-            Log.LogManager.Level = LogLevel.Fatal;
+            Log.Logging.Level = LogLevel.Fatal;
             CreateServer();
         }
 
@@ -73,7 +73,7 @@ namespace Com.AugustCellars.CoAP.DTLS
             };
 
             req.Send();
-            Response resp = req.WaitForResponse(50000);
+            IResponse resp = req.WaitForResponse(50000);
             Assert.AreEqual(null, resp);
             client.Stop();
 

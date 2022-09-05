@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Timers;
 
@@ -21,7 +22,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
 {
     public class SecureBlockwiseLayer : AbstractLayer
     {
-        static readonly ILogger log = LogManager.GetLogger(typeof(SecureBlockwiseLayer));
+        static readonly ILogger log = Logging.GetLogger(typeof(SecureBlockwiseLayer));
 
         private int _maxMessageSize;
         private int _defaultBlockSize;
@@ -81,7 +82,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
             }
             else if (RequiresBlockwise(request)) {
                 // This must be a large POST or PUT request
-                log.Debug(m => m($"Request payload {request.PayloadSize}/{_maxMessageSize} requires Blockwise."));
+                log.Debug(string.Format(CultureInfo.InvariantCulture, $"Request payload {request.PayloadSize}/{_maxMessageSize} requires Blockwise."));
 
                 BlockwiseStatus status = FindRequestBlockStatus(exchange, request);
                 Request block = GetNextRequestBlock(request, exchange.PreSecurityOptions, status);
@@ -310,7 +311,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
             BlockOption block1 = response.Block1;
             if (block1 != null) {
                 // TODO: What if request has not been sent blockwise (server error)
-                log.Debug(m => m("Response acknowledges block {block1}"));
+                log.Debug(string.Format(CultureInfo.InvariantCulture, "Response acknowledges block {block1}"));
 
                 BlockwiseStatus status = exchange.OscoreRequestBlockStatus;
                 if (!status.Complete) {
@@ -319,7 +320,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
                     int currentSize = 1 << (4 + status.CurrentSZX);
                     int nextNum = status.CurrentNUM + currentSize / block1.Size;
                     
-                    log.Debug(m => m($"Send next block num = {nextNum}"));
+                    log.Debug(string.Format(CultureInfo.InvariantCulture, $"Send next block num = {nextNum}"));
     
                     status.CurrentNUM = nextNum;
                     status.CurrentSZX = block1.SZX;
@@ -329,7 +330,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
                     }
 
                     exchange.CurrentRequest = nextBlock;
-                    log.Debug(m => m($"ReceiveResponse: Block message to send: {nextBlock}"));
+                    log.Debug(string.Format(CultureInfo.InvariantCulture, $"ReceiveResponse: Block message to send: {nextBlock}"));
                     base.SendRequest(nextLayer, exchange, nextBlock);
                     // do not deliver response
                 }
@@ -385,7 +386,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
                         status.CurrentNUM = num;
 
                         exchange.CurrentRequest = block;
-                        log.Debug(m1=>m1($"ReceiveResponse: Block request is {block}"));
+                        log.Debug(string.Format(CultureInfo.InvariantCulture, $"ReceiveResponse: Block request is {block}"));
                         base.SendRequest(nextLayer, exchange, block);
                     }
                     else {

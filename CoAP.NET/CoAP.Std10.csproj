@@ -113,7 +113,7 @@ It is intented primarily for research and verification work.
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Deploy'">
@@ -184,17 +184,20 @@ It is intented primarily for research and verification work.
     <Compile Include="EndPoint\Resources\Resource.cs" />
     <Compile Include="ICoapConfig.cs" />
     <Compile Include="ICoapObserveRelation.cs" />
+    <Compile Include="IMessage.cs" />
+    <Compile Include="IRequest.cs" />
+    <Compile Include="IResponse.cs" />
     <Compile Include="ISecureSession.cs" />
     <Compile Include="ISession.cs" />
     <Compile Include="LinkAttribute.cs" />
     <Compile Include="LinkFormat.cs" />
-    <Compile Include="Log\CommonLoggingManager.cs" />
-    <Compile Include="Log\ConsoleLogManager.cs" />
-    <Compile Include="Log\FileLogManager.cs" />
+    <Compile Include="Log\ClassLogger.cs" />
+    <Compile Include="Log\ConsoleLogger.cs" />
     <Compile Include="Log\ILogger.cs" />
     <Compile Include="Log\ILogManager.cs" />
-    <Compile Include="Log\LogManager.cs" />
-    <Compile Include="Log\NopLogManager.cs" />
+    <Compile Include="Log\ILogWriter.cs" />
+    <Compile Include="Log\Logging.cs" />
+    <Compile Include="Log\LogWriterManager.cs" />
     <Compile Include="Log\TextWriterLogger.cs" />
     <Compile Include="MediaType.cs" />
     <Compile Include="Message.cs" />
