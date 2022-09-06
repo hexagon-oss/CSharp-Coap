@@ -31,14 +31,23 @@ namespace Com.AugustCellars.CoAP
         private Response _current = null;
 
         public event Action<Response> OnResponseUpdated;
-        public bool Reconnect { get; set; } = false;
+        public bool Reconnect { get; set; } = true;
+        public int LifeTimeSec { get; set; } = 60;
 
         public CoapObserveRelation(IRequest request, ICoapConfig config)
         {
             Request = request;
             _endpoint = request.EndPoint;
             Orderer = new ObserveNotificationOrderer(config);
+            LifeTimeSec = config.ObservationLifetime;
             Request.ObserveRelation = this;
+
+            if (Reconnect)
+            {
+                var lifeTimeOption = Option.Create(OptionType.ObserveLifetime);
+                lifeTimeOption.IntValue = LifeTimeSec;
+                Request.AddOption(lifeTimeOption);
+            }
 
             request.Reregistering += OnReregister;
         }

@@ -233,6 +233,11 @@ namespace Com.AugustCellars.CoAP.Net
             return (T)GetOrAdd(key, valueFactory);
         }
 
+        public bool Contains(object key)
+        {
+            return _attributes.ContainsKey(key);
+        }
+
         /// <summary>
         /// Set an object in the attribute map based on it's key.
         /// If a previous object existed, return it.

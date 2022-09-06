@@ -133,7 +133,7 @@ namespace CoAP.Test.Std10.Observe
         public void ObserveTest2()
         {
             CoapConfig clientConfig = new CoapConfig() {
-                NotificationReregistrationBackoff = 0
+                ObservationLifetime = 0
             };
 
             Pump = new MockMessagePump();
@@ -363,7 +363,7 @@ namespace CoAP.Test.Std10.Observe
         public void ObserveTest11()
         {
             CoapConfig clientConfig = new CoapConfig() {
-                NotificationReregistrationBackoff = 0
+                ObservationLifetime = 0
             };
 
             Pump = new MockMessagePump();
@@ -460,7 +460,7 @@ namespace CoAP.Test.Std10.Observe
         {
             CoapConfig clientConfig = new CoapConfig()
             {
-                NotificationReregistrationBackoff = 0
+                ObservationLifetime = 0
             };
 
             Pump = new MockMessagePump();
@@ -560,7 +560,7 @@ namespace CoAP.Test.Std10.Observe
         {
             CoapConfig clientConfig = new CoapConfig()
             {
-                NotificationReregistrationBackoff = 0
+                ObservationLifetime = 0
             };
 
             Pump = new MockMessagePump();

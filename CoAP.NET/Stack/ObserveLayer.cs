@@ -27,16 +27,10 @@ namespace Com.AugustCellars.CoAP.Stack
         private static readonly Random random = new Random();
 
         /// <summary>
-        /// Additional time to wait until re-registration
-        /// </summary>
-        private readonly int _backOff;
-
-        /// <summary>
         /// Constructs a new observe layer.
         /// </summary>
-        public ObserveLayer(ICoapConfig config)
+        public ObserveLayer()
         {
-            _backOff = config.NotificationReregistrationBackoff;
         }
 
         /// <inheritdoc/>
@@ -138,8 +132,10 @@ namespace Com.AugustCellars.CoAP.Stack
                 }
                 relation.Current = response;
 
-                if (relation.Reconnect) {
+                if (response.HasOption(OptionType.ObserveLifetime) && relation.Reconnect) {
+
                     PrepareReregistration(exchange, response, msg => SendRequest(nextLayer, exchange, msg));
+                    response.RemoveOptions(OptionType.ObserveLifetime);
                 }
             }
             base.ReceiveResponse(nextLayer, exchange, response);
@@ -254,13 +250,13 @@ namespace Com.AugustCellars.CoAP.Stack
 
         private void PrepareReregistration(Exchange exchange, Response response, Action<Request> reregister)
         {
-
-            long timeout = response.MaxAge * 1000 + _backOff + random.Next(2, 15) * 1000;
+            long timeoutMs = response.GetFirstOption(OptionType.ObserveLifetime).IntValue * 950; // 1000 ms * 95% --> needs to be refreshed a bit earlier
             ReregistrationContext ctx = exchange.GetOrAdd<ReregistrationContext>(
-                reregistrationContextKey, _ => new ReregistrationContext(exchange, timeout, reregister));
+                reregistrationContextKey, _ => new ReregistrationContext(exchange, timeoutMs, reregister));
 
-            log.Debug(string.Format(CultureInfo.InvariantCulture, "Scheduling re-registration in " + timeout + "ms for " + exchange.Request));
+            log.Debug(string.Format(CultureInfo.InvariantCulture, "Scheduling re-registration in " + timeoutMs + "ms for " + exchange.Request));
 
+            ctx.Duration = timeoutMs; // update in case exchange already contained this value
             ctx.Restart();
         }
 
@@ -278,6 +274,12 @@ namespace Com.AugustCellars.CoAP.Stack
                     AutoReset = false
                 };
                 _timer.Elapsed += timer_Elapsed;
+            }
+
+            public double Duration
+            {
+                get => _timer.Interval;
+                set => _timer.Interval = value;
             }
 
             public void Start()

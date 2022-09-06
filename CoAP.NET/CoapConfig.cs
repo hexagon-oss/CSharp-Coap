@@ -64,7 +64,7 @@ namespace Com.AugustCellars.CoAP
         private const long Default_NotificationMaxAge = 128 * 1000; // ms
         private const long Default_NotificationCheckIntervalTime = 24 * 60 * 60 * 1000; // ms
         private const int Default_NotificationCheckIntervalCount = 100;
-        private const int Default_NotificationReregistrationBackoff = 2000; // ms
+        private const int Default_ObservationLifetime = 20; // s
         private const int Default_ChannelReceivePacketSize = 2048;
 
         private const int Default_Oscoap_MaxMessageSize = 128;
@@ -231,10 +231,10 @@ namespace Com.AugustCellars.CoAP
         }
 
         /// <inheritdoc/>
-        public int NotificationReregistrationBackoff
+        public int ObservationLifetime
         {
-            get => GetInt("NotificationReregistrationBackoff", Default_NotificationReregistrationBackoff);
-            set => SetValue("NotificationReregistrationBackoff", value);
+            get => GetInt("ObservationLifetime", Default_ObservationLifetime);
+            set => SetValue("ObservationLifetime", value);
         }
 
         /// <inheritdoc/>
