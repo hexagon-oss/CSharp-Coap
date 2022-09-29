@@ -5,11 +5,12 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;net462;netstandard2.0</TargetFrameworks>
+	  <PackageProjectUrl>https://github.com/hexagon-oss/CSharp-Coap</PackageProjectUrl>
+	  <RepositoryUrl>https://github.com/hexagon-oss/CSharp-Coap</RepositoryUrl>
     <PackageId>Com.AugustCellars.CoAP</PackageId>
     <Id>Com.AugustCellars.CoAP</Id>
-    <PackageVersion>1.9.0.0</PackageVersion>
-    <Version>1.9.0.0</Version>
-    <Authors>Jim Schaad</Authors>
+    <Version>$(VersionPrefix)</Version>
+    <Authors>Jim Schaad, Leica Geosystems AG</Authors>
     <Title>C# Implementation of CoAP</Title>
     <Description>An implementation of various CoAP standards.  Both client and server sides are included.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -22,7 +23,16 @@
     <PackageReleaseNotes>
 This project is built on the CoAP.NET project of smeshlink which in turn is based on Californium.  As this project did not seem to be maintained any more and I wanted a version in order to test the newer items that are coming out of the IETF CORE working group, I have captured it and started exanding it.
 It is intented primarily for research and verification work.
-
+1.11 (Richter Manuel)
+  - Logging rework
+  - External mockability of classes by introducing interfaces.
+  - Added option 10 (Observation lifetime)
+  - Added status codes
+  - Bug fixes
+1.10
+  - Add fallback code if UDP read function is not supported.  These platforms will no longer have full multicast support.
+  - Enable the ability to change ETags on an observe relation
+  - Fix error where an observe would attempt to re-connect after active cancel
 1.10
   - Add fallback code if UDP read function is not supported.  These platforms will no longer have full multicast support.
   - Enable the ability to change ETags on an observe relation
@@ -106,6 +116,10 @@ It is intented primarily for research and verification work.
     <Configurations>Debug;Release;Deploy</Configurations>
   </PropertyGroup>
 
+	<PropertyGroup>
+		<PackageOutputPath>$(SolutionDir)\artifacts\nuget\$(Configuration)</PackageOutputPath>
+	</PropertyGroup>
+
   <PropertyGroup>
     <EnableDefaultItems>false</EnableDefaultItems>
     <AssemblyName>CoAP</AssemblyName>
@@ -114,6 +128,8 @@ It is intented primarily for research and verification work.
 
   <PropertyGroup>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <SignAssembly>True</SignAssembly>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Deploy'">
