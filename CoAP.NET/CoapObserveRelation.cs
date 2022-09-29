@@ -28,9 +28,9 @@ namespace Com.AugustCellars.CoAP
     public class CoapObserveRelation : ICoapObserveRelation
     {
         readonly IEndPoint _endpoint;
-        private Response _current = null;
+        private IResponse _current = null;
 
-        public event Action<Response> OnResponseUpdated;
+        public event Action<IResponse> OnResponseUpdated;
         public bool Reconnect { get; set; } = true;
         public int LifeTimeSec { get; set; } = 60;
 
@@ -60,7 +60,7 @@ namespace Com.AugustCellars.CoAP
         /// <summary>
         /// Return the most recent response that was received from the observe relationship.
         /// </summary>
-        public Response Current
+        public IResponse Current
         {
             get => _current;
             set

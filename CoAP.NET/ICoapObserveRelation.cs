@@ -8,7 +8,7 @@ namespace Com.AugustCellars.CoAP
 {
     public interface ICoapObserveRelation
     {
-        event Action<Response> OnResponseUpdated;
+        event Action<IResponse> OnResponseUpdated;
 
         bool Reconnect { get; set; }
 
@@ -20,7 +20,7 @@ namespace Com.AugustCellars.CoAP
         /// <summary>
         /// Return the most recent response that was received from the observe relationship.
         /// </summary>
-        Response Current { get; set; }
+        IResponse Current { get; set; }
 
         /// <summary>
         /// Return the orderer.  This is the filter function that is used to determine if

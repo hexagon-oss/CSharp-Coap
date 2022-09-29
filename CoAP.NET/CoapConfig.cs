@@ -64,7 +64,7 @@ namespace Com.AugustCellars.CoAP
         private const long Default_NotificationMaxAge = 128 * 1000; // ms
         private const long Default_NotificationCheckIntervalTime = 24 * 60 * 60 * 1000; // ms
         private const int Default_NotificationCheckIntervalCount = 100;
-        private const int Default_ObservationLifetime = 20; // s
+        private const int Default_ObservationLifetime = 60; // s
         private const int Default_ChannelReceivePacketSize = 2048;
 
         private const int Default_Oscoap_MaxMessageSize = 128;
