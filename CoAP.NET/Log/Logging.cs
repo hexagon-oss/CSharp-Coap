@@ -22,7 +22,6 @@ namespace Com.AugustCellars.CoAP.Log
         static Logging()
         {
             _Manager = new LogWriterManager();
-            _Manager.AddLogWriter(new ConsoleLogger(null));
         }
 
         public static LogLevel Level { get; set; } = LogLevel.Debug;
