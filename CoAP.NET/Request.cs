@@ -29,6 +29,7 @@ namespace Com.AugustCellars.CoAP
     /// </summary>
     public class Request : Message, IRequest
     {
+        private static readonly TimeSpan MaximumWaitingDuration = TimeSpan.FromDays(1);
         private Uri _uri;
         private Response _currentResponse;
         private IEndPoint _endPoint;
@@ -297,7 +298,7 @@ namespace Com.AugustCellars.CoAP
         /// <exception cref="System.Threading.ThreadInterruptedException"></exception>
         public IResponse WaitForResponse()
         {
-            return WaitForResponse(TimeSpan.MaxValue);
+            return WaitForResponse(MaximumWaitingDuration);
         }
 
         /// <summary>
