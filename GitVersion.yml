@@ -12,7 +12,7 @@ commit-message-incrementing: Disabled
 
 branches:
   master:
-    regex: master
+    regex: ^master$
     tag: alpha
 
   pull-request:
