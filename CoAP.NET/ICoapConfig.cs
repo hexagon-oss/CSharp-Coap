@@ -114,9 +114,9 @@ namespace Com.AugustCellars.CoAP
         int NotificationCheckIntervalCount { get; }
 
         /// <summary>
-        /// Input on when to refresh a stale notification
+        /// Input on when to refresh an observation
         /// </summary>
-        int NotificationReregistrationBackoff { get; }
+        int ObservationLifetime { get; }
 
         /// <summary>
         /// Which deduplicator is used

@@ -11,6 +11,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Net;
 using Com.AugustCellars.CoAP.Channel;
 using Com.AugustCellars.CoAP.Codec;
@@ -28,7 +29,7 @@ namespace Com.AugustCellars.CoAP.Net
     // ReSharper disable once InconsistentNaming
     public class CoAPEndPoint : IEndPoint, IOutbox
     {
-        static readonly ILogger _Log = LogManager.GetLogger(typeof(CoAPEndPoint));
+        static readonly ILogger _Log = Logging.GetLogger(typeof(CoAPEndPoint));
 
         /// <summary>
         /// Function that will create and return a message encoder
@@ -212,11 +213,11 @@ namespace Com.AugustCellars.CoAP.Net
                 LocalEndPoint = dataChannel.LocalEndPoint;
             }
             catch {
-                _Log.Warn(m => m("Cannot start endpoint at {0}", LocalEndPoint));
+                _Log.Warn(string.Format(CultureInfo.InvariantCulture, "Cannot start endpoint at {0}", LocalEndPoint));
                 Stop();
                 throw;
             }
-            _Log.Debug(m => m("Starting endpoint bound to {0}", LocalEndPoint));
+            _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Starting endpoint bound to {0}", LocalEndPoint));
         }
 
         /// <inheritdoc/>
@@ -226,7 +227,7 @@ namespace Com.AugustCellars.CoAP.Net
                 return;
             }
 
-            _Log.Debug(m => m("Stopping endpoint bound to {0}", LocalEndPoint));
+            _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Stopping endpoint bound to {0}", LocalEndPoint));
             dataChannel.Stop();
             _matcher.Stop();
             _matcher.Clear();
@@ -295,7 +296,7 @@ namespace Com.AugustCellars.CoAP.Net
                 catch (Exception) {
 
                     if (decoder.IsReply) {
-                        _Log.Warn(m => m("Message format error caused by {0}", e.EndPoint));
+                        _Log.Warn(string.Format(CultureInfo.InvariantCulture, "Message format error caused by {0}", e.EndPoint));
                     }
                     else {
                         // manually build RST from raw information
@@ -308,7 +309,7 @@ namespace Com.AugustCellars.CoAP.Net
 
                         dataChannel.Send(Serialize(rst), e.Session, rst.Destination);
 
-                        _Log.Warn(m => m("Message format error caused by {0} and reset.", e.EndPoint));
+                        _Log.Warn(string.Format(CultureInfo.InvariantCulture, "Message format error caused by {0} and reset.", e.EndPoint));
                     }
                     return;
                 }
@@ -334,12 +335,12 @@ namespace Com.AugustCellars.CoAP.Net
                     response = decoder.DecodeResponse();
                 }
                 catch (Exception ex) {
-                    _Log.Debug(m => m("ReceiveData: Decode Response Failed  data={0}\nException={1}", BitConverter.ToString(e.Data), ex.ToString()));
+                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, "ReceiveData: Decode Response Failed  data={0}\nException={1}", BitConverter.ToString(e.Data), ex.ToString()));
                     return;
                 }
 
                 response.Source = e.EndPoint;
-                _Log.Debug(m => m("ReceiveData: {0}", Util.Utils.ToString(response)));
+                _Log.Debug(string.Format(CultureInfo.InvariantCulture, "ReceiveData: {0}", Util.Utils.ToString(response)));
 
                 Fire(ReceivingResponse, response);
 
@@ -351,7 +352,7 @@ namespace Com.AugustCellars.CoAP.Net
                         _coapStack.ReceiveResponse(exchange, response);
                     }
                     else if (response.Type != MessageType.ACK) {
-                        _Log.Debug(m => m("Rejecting unmatchable response from {0}", e.EndPoint));
+                        _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Rejecting unmatchable response from {0}", e.EndPoint));
                         Reject(response);
                     }
                 }
@@ -363,7 +364,7 @@ namespace Com.AugustCellars.CoAP.Net
                     message = decoder.DecodeEmptyMessage();
                 }
                 catch (Exception ex) {
-                    _Log.Debug(m => m("ReceiveData: Decode Empty Failed  data={0}\nException={1}", BitConverter.ToString(e.Data), ex.ToString()));
+                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, "ReceiveData: Decode Empty Failed  data={0}\nException={1}", BitConverter.ToString(e.Data), ex.ToString()));
                     return;
                 }
 
@@ -374,7 +375,7 @@ namespace Com.AugustCellars.CoAP.Net
                 if (!message.IsCancelled) {
                     // CoAP Ping
                     if (message.Type == MessageType.CON || message.Type == MessageType.NON) {
-                        _Log.Debug(m => m("Responding to ping by {0}", e.EndPoint));
+                        _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Responding to ping by {0}", e.EndPoint));
                         Reject(message);
                     }
                     else {
@@ -394,19 +395,19 @@ namespace Com.AugustCellars.CoAP.Net
                     message = decoder.DecodeSignal();
                 }
                 catch (Exception ex) {
-                    _Log.Debug(m => m("ReceiveData: Decode Signal Failed  data={0}\nException={1}", BitConverter.ToString(e.Data), ex.ToString()));
+                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, "ReceiveData: Decode Signal Failed  data={0}\nException={1}", BitConverter.ToString(e.Data), ex.ToString()));
                     return;
                 }
 
                 message.Source = e.EndPoint;
 
-                _Log.Info(m => m("Processing signal message {1} from {0}", e.EndPoint, message.ToString()));
+                _Log.Info(string.Format(CultureInfo.InvariantCulture, "Processing signal message {1} from {0}", e.EndPoint, message.ToString()));
 
                 Fire(ReceivingSignalMessage, message);
 
                 switch (message.SignalCode) {
                     default:
-                        _Log.Info(m => m("Unknown signal received.  Code is {0}.{1}", ((int)message.SignalCode)/32, ((int)message.SignalCode)%32));
+                        _Log.Info(string.Format(CultureInfo.InvariantCulture, "Unknown signal received.  Code is {0}.{1}", ((int)message.SignalCode)/32, ((int)message.SignalCode)%32));
                         break;
 
                     case SignalCode.CSM:
@@ -421,7 +422,7 @@ namespace Com.AugustCellars.CoAP.Net
                                     break;
 
                                 default:
-                                    _Log.Info(m => m("Bad CSM Option {0} received", op.Type));
+                                    _Log.Info(string.Format(CultureInfo.InvariantCulture, "Bad CSM Option {0} received", op.Type));
                                     signal = new SignalMessage(SignalCode.Abort);
                                     Option op2 = Option.Create(OptionType.Signal_BadCSMOption);
                                     op2.IntValue = (int) op.Type;
@@ -441,7 +442,7 @@ namespace Com.AugustCellars.CoAP.Net
                         break;
 
                     case SignalCode.Pong:
-                        _Log.Info(m => m("PONG"));
+                        _Log.Info(string.Format(CultureInfo.InvariantCulture, "PONG"));
                         break;
 
                     case SignalCode.Release:
@@ -454,7 +455,7 @@ namespace Com.AugustCellars.CoAP.Net
                 }
             }
             else {
-                _Log.Debug(m => m("Silently ignoring non-CoAP message from {0}", e.EndPoint));
+                _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Silently ignoring non-CoAP message from {0}", e.EndPoint));
             }
         }
 

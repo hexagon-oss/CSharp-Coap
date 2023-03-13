@@ -64,7 +64,7 @@ namespace Com.AugustCellars.CoAP
         /// <summary>
         /// Default block size used for block-wise transfers
         /// </summary>
-        public const int DefaultBlockSize = 512;
+        public const int DefaultBlockSize = 128;
         // public const Int32 MessageCacheSize = 32;
         // public const Int32 ReceiveBufferSize = 4096;
         // public const Int32 DefaultOverallTimeout = 100000;

@@ -35,7 +35,7 @@ namespace Com.AugustCellars.CoAP
         {
             EmptyMessage ack = new EmptyMessage(MessageType.ACK);
             ack.ID = message.ID;
-            ack.Token = CoapConstants.EmptyToken;
+            ack.Token = message.Token;
             ack.Destination = message.Source;
             return ack;
         }
@@ -49,7 +49,7 @@ namespace Com.AugustCellars.CoAP
         {
             EmptyMessage rst = new EmptyMessage(MessageType.RST);
             rst.ID = message.ID;
-            rst.Token = CoapConstants.EmptyToken;
+            rst.Token = message.Token;
             rst.Destination = message.Source;
             return rst;
         }

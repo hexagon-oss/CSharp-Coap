@@ -10,54 +10,14 @@
  */
 
 using System;
-#if COMMON_LOGGER
-using Common.Logging.Factory;
-#endif
-using FormatMessageCallback = System.Action<Com.AugustCellars.CoAP.Log.FormatMessageHandler>;
 
 namespace Com.AugustCellars.CoAP.Log
 {
     /// <summary>
     /// Logger that writes logs to a <see cref="System.IO.TextWriter"/>.
     /// </summary>
-    public class TextWriterLogger : ILogger
+    public class TextWriterLogger : ILogWriter
     {
-        [CLSCompliant(false)]
-        protected class FormatMessageCallbackFormattedMessage
-        {
-            private string _cachedMessage;
-            private readonly FormatMessageCallback _formatMessageCallback;
-
-            public FormatMessageCallbackFormattedMessage(FormatMessageCallback formatMessageCallback)
-            {
-                _formatMessageCallback = formatMessageCallback;
-            }
-
-            public override string ToString()
-            {
-                if (_cachedMessage == null) {
-                    if (_formatMessageCallback != null) {
-                        _formatMessageCallback(FormatMessage);
-                    }
-                    else {
-                        _cachedMessage = "";
-                    }
-                }
-
-                return _cachedMessage;
-            }
-
-#if COMMON_LOGGER
-            [StringFormatMethod("format")]
-#endif
-            protected string FormatMessage(string format, params object[] args)
-            {
-                if (args.Length > 0) _cachedMessage = string.Format(format, args);
-                else _cachedMessage = format;
-                return _cachedMessage;
-            }
-        }
-
         private readonly System.IO.TextWriter _Writer;
 
         private readonly String _logName;
@@ -72,40 +32,8 @@ namespace Com.AugustCellars.CoAP.Log
         }
 
         /// <inheritdoc/>
-        public Boolean IsDebugEnabled
-        {
-            get => LogLevel.Debug >= LogManager.Level;
-        }
-
-        /// <inheritdoc/>
-        public Boolean IsInfoEnabled
-        {
-            get => LogLevel.Info >= LogManager.Level;
-        }
-
-        /// <inheritdoc/>
-        public Boolean IsErrorEnabled
-        {
-            get => LogLevel.Error >= LogManager.Level;
-        }
-
-        /// <inheritdoc/>
-        public Boolean IsFatalEnabled
-        {
-            get => LogLevel.Fatal >= LogManager.Level;
-        }
-
-        /// <inheritdoc/>
-        public Boolean IsWarnEnabled
-        {
-            get => LogLevel.Warning >= LogManager.Level;
-        }
-
-        /// <inheritdoc/>
         public void Error(Object sender, String msg, params Object[] args)
         {
-            if (!IsErrorEnabled) return;
-
             string text = String.Format(msg, args);
 
             Log("ERROR", text, null);
@@ -114,8 +42,6 @@ namespace Com.AugustCellars.CoAP.Log
         /// <inheritdoc/>
         public void Warning(Object sender, String msg, params Object[] args)
         {
-            if (!IsWarnEnabled) return;
-
             string text = String.Format(msg, args);
 
             Log("WARNING", text, null);
@@ -124,8 +50,6 @@ namespace Com.AugustCellars.CoAP.Log
         /// <inheritdoc/>
         public void Info(Object sender, String msg, params Object[] args)
         {
-            if (!IsInfoEnabled) return;
-
             string text = String.Format(msg, args);
 
             Log("INFO", text, null);
@@ -134,117 +58,72 @@ namespace Com.AugustCellars.CoAP.Log
         /// <inheritdoc/>
         public void Debug(Object sender, String msg, params Object[] args)
         {
-            if (!IsDebugEnabled) return;
-
             string text = String.Format(msg, args);
 
             Log("DEBUG", text, null);
         }
 
         /// <inheritdoc/>
-        public void Debug(Object message)
+        public void Debug(string message)
         {
-            if (!IsDebugEnabled) return;
             Log("DEBUG", message, null);
         }
 
         /// <inheritdoc/>
-        public void Debug(Object message, Exception exception)
+        public void Debug(string message, Exception exception)
         {
-            if (!IsDebugEnabled) return;
             Log("DEBUG", message, exception);
         }
 
-        public void Debug(FormatMessageCallback formatMessageCallback)
-        {
-            if (IsDebugEnabled) {
-                Log("DEBUG", new FormatMessageCallbackFormattedMessage(formatMessageCallback), null);
-            }
-        }
-
         /// <inheritdoc/>
-        public void Error(Object message)
+        public void Error(string message)
         {
             Log("Error", message, null);
         }
 
         /// <inheritdoc/>
-        public void Error(Object message, Exception exception)
+        public void Error(string message, Exception exception)
         {
             Log("Error", message, exception);
         }
 
         /// <inheritdoc/>
-        public void Error(FormatMessageCallback formatMessageCallback)
-        {
-            if (IsErrorEnabled) {
-                Log("ERROR", new FormatMessageCallbackFormattedMessage(formatMessageCallback), null);
-            }
-        }
-
-        /// <inheritdoc/>
-        public void Fatal(Object message)
+        public void Fatal(string message)
         {
             Log("Fatal", message, null);
         }
 
         /// <inheritdoc/>
-        public void Fatal(Object message, Exception exception)
+        public void Fatal(string message, Exception exception)
         {
             Log("Fatal", message, exception);
         }
 
         /// <inheritdoc/>
-        public void Fatal(FormatMessageCallback formatMessageCallback)
-        {
-            if (IsFatalEnabled) {
-                Log("Fatal", new FormatMessageCallbackFormattedMessage(formatMessageCallback), null);
-            }
-        }
-
-        /// <inheritdoc/>
-        public void Info(Object message)
+        public void Info(string message)
         {
             Log("Info", message, null);
         }
 
         /// <inheritdoc/>
-        public void Info(Object message, Exception exception)
+        public void Info(string message, Exception exception)
         {
             Log("Info", message, exception);
         }
 
         /// <inheritdoc/>
-        public void Info(FormatMessageCallback formatMessageCallback)
-        {
-            if (IsInfoEnabled) {
-                Log("Info", new FormatMessageCallbackFormattedMessage(formatMessageCallback), null);
-            }
-        }
-
-        /// <inheritdoc/>
-        public void Warn(Object message)
+        public void Warn(string message)
         {
             Log("Warn", message, null);
         }
 
         /// <inheritdoc/>
-        public void Warn(Object message, Exception exception)
+        public void Warn(string message, Exception exception)
         {
-            if (IsWarnEnabled) {
-                Log("Warn", message, exception);
-            }
+            Log("Warn", message, exception);
         }
 
-        /// <inheritdoc/>
-        public void Warn(FormatMessageCallback formatMessageCallback)
-        {
-            if (IsWarnEnabled) {
-                Log("Warn", new FormatMessageCallbackFormattedMessage(formatMessageCallback), null);
-            }
-        }
-
-        private void Log(String level, Object message, Exception exception)
+        private void Log(String level, string message, Exception exception)
         {
             try {
                 String log = "";

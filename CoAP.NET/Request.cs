@@ -14,6 +14,7 @@
 using System;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Com.AugustCellars.CoAP.Net;
 using Com.AugustCellars.CoAP.Observe;
 using Com.AugustCellars.CoAP.OSCOAP;
@@ -26,8 +27,9 @@ namespace Com.AugustCellars.CoAP
     /// 1. operations to answer a request by a response using respond()
     /// 2. different ways to handle incoming responses: receiveResponse() or Respond event
     /// </summary>
-    public class Request : Message
+    public class Request : Message, IRequest
     {
+        private static readonly TimeSpan MaximumWaitingDuration = TimeSpan.FromDays(1);
         private Uri _uri;
         private Response _currentResponse;
         private IEndPoint _endPoint;
@@ -294,9 +296,9 @@ namespace Com.AugustCellars.CoAP
         /// Wait for a response.
         /// </summary>
         /// <exception cref="System.Threading.ThreadInterruptedException"></exception>
-        public Response WaitForResponse()
+        public IResponse WaitForResponse()
         {
-            return WaitForResponse(System.Threading.Timeout.Infinite);
+            return WaitForResponse(MaximumWaitingDuration);
         }
 
         /// <summary>
@@ -305,7 +307,12 @@ namespace Com.AugustCellars.CoAP
         /// <param name="millisecondsTimeout">the maximum time to wait in milliseconds</param>
         /// <returns>the response, or null if timeout occured</returns>
         /// <exception cref="System.Threading.ThreadInterruptedException"></exception>
-        public Response WaitForResponse(Int32 millisecondsTimeout)
+        public IResponse WaitForResponse(int millisecondsTimeout)
+        {
+            return WaitForResponse(TimeSpan.FromMilliseconds(millisecondsTimeout));
+        }
+
+        public IResponse WaitForResponse(TimeSpan timeout, CancellationToken? cancellationToken = null)
         {
             // lazy initialization of a lock
             if (_sync == null) {
@@ -317,13 +324,42 @@ namespace Com.AugustCellars.CoAP
             }
 
             lock (_sync) {
-                if (_currentResponse == null &&
-                    !IsCancelled && !IsTimedOut && !IsRejected) {
-                    System.Threading.Monitor.Wait(_sync, millisecondsTimeout);
+                using (var timeoutCancellation = new CancellationTokenSource(timeout))
+                {
+                    EventHandler<ResponseEventArgs> resetTimeoutOnResponse = (o, rea) =>
+                    {
+                        timeoutCancellation.CancelAfter(timeout); // reset timeout after receiving a new response (large get)
+                    };
+                    Responding += resetTimeoutOnResponse;
+
+                    if (cancellationToken == null)
+                    {
+                        WaitForResponseInternal(timeoutCancellation);
+                    }
+                    else
+                    {
+                        using (CancellationTokenSource cancelation =
+                               CancellationTokenSource.CreateLinkedTokenSource((CancellationToken) cancellationToken,
+                                   timeoutCancellation.Token))
+                        {
+                            WaitForResponseInternal(cancelation);
+                        }
+                    }
+
+                    Responding -= resetTimeoutOnResponse;
                 }
                 Response resp = _currentResponse;
                 _currentResponse = null;
                 return resp;
+            }
+        }
+
+        private void WaitForResponseInternal(CancellationTokenSource cancellation)
+        {
+            while (_currentResponse == null &&
+                !IsCancelled && !IsTimedOut && !IsRejected && cancellation.Token.IsCancellationRequested == false)
+            {
+                cancellation.Token.WaitHandle.WaitOne(50);
             }
         }
 #endregion

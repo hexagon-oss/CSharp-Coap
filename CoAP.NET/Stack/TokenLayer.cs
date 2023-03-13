@@ -21,7 +21,7 @@ namespace Com.AugustCellars.CoAP.Stack
     /// </summary>
     public class TokenLayer : AbstractLayer
     {
-        private static ILogger _Log = LogManager.GetLogger("TokenLayer");
+        private static ILogger _Log = Logging.GetLogger(typeof(TokenLayer));
 
         /// <summary>
         /// Constructs a new token layer.

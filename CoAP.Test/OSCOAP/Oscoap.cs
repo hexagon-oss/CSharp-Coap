@@ -30,7 +30,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
         [TestInitialize]
         public void SetupServer()
         {
-            Log.LogManager.Level = Log.LogLevel.Fatal;
+            Log.Logging.Level = Log.LogLevel.Fatal;
             CreateServer();
         }
 

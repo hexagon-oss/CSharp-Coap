@@ -18,7 +18,7 @@ namespace Com.AugustCellars.CoAP
     /// A response is either a piggy-backed response with type ACK
     /// or a separate response with type CON or NON.
     /// </summary>
-    public class Response : Message
+    public class Response : Message, IResponse
     {
         /// <summary>
         /// Initializes a response message.

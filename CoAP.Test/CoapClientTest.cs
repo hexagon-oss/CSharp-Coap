@@ -42,7 +42,7 @@ namespace Com.AugustCellars.CoAP
         [TestInitialize]
         public void SetupServer()
         {
-            Log.LogManager.Level = Log.LogLevel.Fatal;
+            Log.Logging.Level = Log.LogLevel.Fatal;
             CreateServer();
         }
 

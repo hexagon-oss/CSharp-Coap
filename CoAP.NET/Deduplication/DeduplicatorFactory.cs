@@ -16,7 +16,7 @@ namespace Com.AugustCellars.CoAP.Deduplication
 {
     static class DeduplicatorFactory
     {
-        static readonly ILogger _Log = LogManager.GetLogger(typeof(DeduplicatorFactory));
+        static readonly ILogger _Log = Logging.GetLogger(typeof(DeduplicatorFactory));
         public const String MarkAndSweepDeduplicator = "MarkAndSweep";
         public const String CropRotationDeduplicator = "CropRotation";
         public const String NoopDeduplicator = "Noop";

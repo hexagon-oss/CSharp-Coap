@@ -54,7 +54,7 @@ namespace CoAP.Test.Std10.OSCOAP
         [TestInitialize]
         public void SetupServer()
         {
-            LogManager.Level = LogLevel.Fatal;
+            Logging.Level = LogLevel.Fatal;
             CreateServer();
         }
 

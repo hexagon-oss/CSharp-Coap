@@ -20,7 +20,7 @@ namespace Com.AugustCellars.CoAP.Codec
     /// </summary>
     public class DatagramWriter
     {
-        private static ILogger log = LogManager.GetLogger(typeof(DatagramWriter));
+        private static ILogger log = Logging.GetLogger(typeof(DatagramWriter));
 
         private MemoryStream _stream;
         private Byte _currentByte;

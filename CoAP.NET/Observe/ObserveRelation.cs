@@ -24,7 +24,7 @@ namespace Com.AugustCellars.CoAP.Observe
     /// </summary>
     public class ObserveRelation
     {
-        private static readonly ILogger _Log = LogManager.GetLogger(typeof(ObserveRelation));
+        private static readonly ILogger _Log = Logging.GetLogger(typeof(ObserveRelation));
         private readonly ICoapConfig _config;
         private readonly ObservingEndpoint _endpoint;
         private DateTime _interestCheckTime = DateTime.Now;
@@ -77,7 +77,7 @@ namespace Com.AugustCellars.CoAP.Observe
         /// </summary>
         public void Cancel()
         { 
-            _Log.Debug(m => m($"Cancel observe relation from {Key} with {Resource.Path}"));
+            _Log.Debug($"Cancel observe relation from {Key} with {Resource.Path}");
 
             // stop ongoing retransmissions
             if (Exchange.Response != null) {

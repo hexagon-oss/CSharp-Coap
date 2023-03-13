@@ -26,7 +26,7 @@ namespace Com.AugustCellars.CoAP
     /// a message identifier <see cref="Message.ID"/>, a token (0-8 bytes),
     /// a  collection of <see cref="Option"/>s and a payload.
     /// </summary>
-    public class Message
+    public class Message : IMessage
     {
         /// <summary>
         /// Indicates that no ID has been set.

@@ -23,7 +23,7 @@ namespace Com.AugustCellars.CoAP.Stack
     /// </summary>
     public class LayerStack : Chain<LayerStack, ILayer, INextLayer>
     {
-        private static readonly ILogger log = LogManager.GetLogger(typeof(LayerStack));
+        private static readonly ILogger log = Logging.GetLogger(typeof(LayerStack));
 
         /// <summary>
         /// Instantiates.

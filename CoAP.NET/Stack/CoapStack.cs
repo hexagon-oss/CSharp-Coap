@@ -27,7 +27,7 @@ namespace Com.AugustCellars.CoAP.Stack
         /// <param name="config"></param>
         public CoapStack(ICoapConfig config)
         {
-            this.AddLast("Observe", new ObserveLayer(config));
+            this.AddLast("Observe", new ObserveLayer());
             this.AddLast("SecureBlockwise", new OSCOAP.SecureBlockwiseLayer(config));
             this.AddLast("OSCORE", new OSCOAP.OscoapLayer(config));
             this.AddLast("Blockwise", new BlockwiseLayer(config));

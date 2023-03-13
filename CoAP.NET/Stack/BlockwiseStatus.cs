@@ -16,6 +16,7 @@ namespace Com.AugustCellars.CoAP.Stack
 {
     /// <summary>
     /// Represents the status of a blockwise transfer of a request or a response.
+    /// TODO: This class is not optimized for large files. Replace _blocks with a filestream to avoid allocating the transfered file in memory.  
     /// </summary>
     public class BlockwiseStatus
     {

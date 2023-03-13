@@ -23,7 +23,7 @@ namespace Com.AugustCellars.CoAP
         [TestInitialize]
         public void SetupServer()
         {
-            Log.LogManager.Level = Log.LogLevel.Fatal;
+            Log.Logging.Level = Log.LogLevel.Fatal;
             _config = new CoapConfig();
             _server = new CoapServer();
             CoAPEndPoint endpoint = new CoAPEndPoint(_serverPort, _config);
@@ -62,7 +62,7 @@ namespace Com.AugustCellars.CoAP
                 request.URI = new Uri("coap://localhost:" + _serverPort + "/" + TARGET);
                 request.SetBlock2(szx, false, num);
                 request.Send();
-                Response response = request.WaitForResponse(1000);
+                IResponse response = request.WaitForResponse(1000);
                 Assert.IsNotNull(response);
                 Assert.AreEqual(expectations[i], response.PayloadString);
                 Assert.IsTrue(response.HasOption(OptionType.Block2));

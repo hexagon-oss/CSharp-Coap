@@ -24,7 +24,7 @@ namespace Com.AugustCellars.CoAP.Server
     /// </summary>
     public class CoapServer : IServer
     {
-        private static readonly ILogger _Log = LogManager.GetLogger(typeof(CoapServer));
+        private static readonly ILogger _Log = Logging.GetLogger(typeof(CoapServer));
         private readonly IResource _root;
         private readonly List<IEndPoint> _endpoints = new List<IEndPoint>();
         private readonly System.Net.EndPoint _endPointSupplied;

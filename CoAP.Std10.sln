@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29306.81
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32126.317
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoAP.Std10", "CoAP.NET\CoAP.Std10.csproj", "{45DB1E45-4831-4E4A-BB1E-AE92EEA182E3}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoAP.Server.Std10", "CoAP.Example\CoAP.Server\CoAP.Server.Std10.csproj", "{05CC2E5E-B663-4560-844C-C8E52ED1C9D1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Example", "Example", "{3EA3A946-6E2C-4389-BE83-0F61C6244E77}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "build", "build\build.csproj", "{2B650611-833B-4C79-8836-A8D63E47682E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +46,9 @@ Global
 		{05CC2E5E-B663-4560-844C-C8E52ED1C9D1}.Deploy|AnyCPU.Build.0 = Debug|Any CPU
 		{05CC2E5E-B663-4560-844C-C8E52ED1C9D1}.Release|AnyCPU.ActiveCfg = Release|Any CPU
 		{05CC2E5E-B663-4560-844C-C8E52ED1C9D1}.Release|AnyCPU.Build.0 = Release|Any CPU
+		{2B650611-833B-4C79-8836-A8D63E47682E}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
+		{2B650611-833B-4C79-8836-A8D63E47682E}.Deploy|AnyCPU.ActiveCfg = Debug|Any CPU
+		{2B650611-833B-4C79-8836-A8D63E47682E}.Release|AnyCPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

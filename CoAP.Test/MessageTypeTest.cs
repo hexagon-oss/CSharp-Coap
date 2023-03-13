@@ -22,7 +22,7 @@ namespace Com.AugustCellars.CoAP
         [TestInitialize]
         public void SetupServer()
         {
-            Log.LogManager.Level = Log.LogLevel.Fatal;
+            Log.Logging.Level = Log.LogLevel.Fatal;
             CoAPEndPoint endpoint = new CoAPEndPoint();
             _server = new CoapServer();
             _server.Add(new AccResource());
@@ -48,7 +48,7 @@ namespace Com.AugustCellars.CoAP
             req2acc.Send();
 
             // receive response and check
-            Response response = req2acc.WaitForResponse(100);
+            IResponse response = req2acc.WaitForResponse(100);
             Assert.IsNotNull(response);
             Assert.AreEqual(response.PayloadString, SERVER_RESPONSE);
             Assert.AreEqual(response.Type, MessageType.NON);
@@ -75,7 +75,7 @@ namespace Com.AugustCellars.CoAP
             req2acc.Send();
 
             // receive response and check
-            Response response = req2acc.WaitForResponse(100);
+            IResponse response = req2acc.WaitForResponse(100);
             Assert.IsNotNull(response);
             Assert.AreEqual(response.PayloadString, SERVER_RESPONSE);
             Assert.AreEqual(response.Type, MessageType.CON);

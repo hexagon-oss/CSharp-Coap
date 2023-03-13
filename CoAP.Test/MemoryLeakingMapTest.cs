@@ -44,7 +44,7 @@ namespace Com.AugustCellars.CoAP
         [TestInitialize]
         public void SetupServer()
         {
-            Log.LogManager.Level = Log.LogLevel.Fatal;
+            Log.Logging.Level = Log.LogLevel.Fatal;
             CoapConfig config = new CoapConfig();
             config.Deduplicator = "MarkAndSweep";
             config.MarkAndSweepInterval = TEST_SWEEP_DEDUPLICATOR_INTERVAL;
@@ -107,7 +107,7 @@ namespace Com.AugustCellars.CoAP
             Request request = Request.NewGet();
             request.URI = uri;
             request.Type = MessageType.NON;
-            Response response = request.Send(_clientEndpoint).WaitForResponse(MAX_WAIT_TIME);
+            IResponse response = request.Send(_clientEndpoint).WaitForResponse(MAX_WAIT_TIME);
 
             Console.WriteLine("Client received response " + response.PayloadString + " with msg type " + response.Type);
             Assert.AreEqual(_currentResponseText, response.PayloadString);

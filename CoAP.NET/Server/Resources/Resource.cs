@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using Com.AugustCellars.CoAP.Log;
 using Com.AugustCellars.CoAP.Net;
 using Com.AugustCellars.CoAP.Observe;
@@ -26,7 +27,7 @@ namespace Com.AugustCellars.CoAP.Server.Resources
     public class Resource : IResource
     {
         static readonly IEnumerable<IEndPoint> _EmptyEndPoints = new IEndPoint[0];
-        static readonly ILogger _Log = LogManager.GetLogger(typeof(Resource));
+        static readonly ILogger _Log = Logging.GetLogger(typeof(Resource));
         private String _name;
         private String _path = String.Empty;
         private Boolean _observable;
@@ -293,10 +294,10 @@ namespace Com.AugustCellars.CoAP.Server.Resources
 
             if (old != null) {
                 old.Cancel();
-                _Log.Debug(m => m("Replacing observe relation between {0} and resource {1}", relation.Key, Uri));
+                _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Replacing observe relation between {0} and resource {1}", relation.Key, Uri));
             }
             else {
-                _Log.Debug(m => m("Successfully established observe relation between {0} and resource {1}", relation.Key, Uri));
+                _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Successfully established observe relation between {0} and resource {1}", relation.Key, Uri));
             }
         }
 

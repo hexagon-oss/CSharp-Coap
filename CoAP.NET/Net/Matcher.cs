@@ -15,6 +15,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 #if NETSTANDARD1_3 == false
 using System.Diagnostics.Contracts;
 #endif
@@ -29,7 +30,7 @@ namespace Com.AugustCellars.CoAP.Net
 {
     public class Matcher : IMatcher, IDisposable
     {
-        static readonly ILogger _Log = LogManager.GetLogger(typeof(Matcher));
+        static readonly ILogger _Log = Logging.GetLogger(typeof(Matcher));
 
         /// <summary>
         /// for all
@@ -152,7 +153,7 @@ namespace Com.AugustCellars.CoAP.Net
 
             exchange.Completed += OnExchangeCompleted;
 
-            _Log.Debug(m => m("Stored open request by {0}, {1}", keyID, keyToken));
+            _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Stored open request by {0}, {1}", keyID, keyToken));
 
             _exchangesByID[keyID] = exchange;
             _exchangesByToken[keyToken] = exchange;
@@ -361,18 +362,18 @@ namespace Com.AugustCellars.CoAP.Net
                 Exchange prev = _deduplicator.FindPrevious(keyId, exchange);
                 if (prev != null) {
                     // (and thus it holds: prev == exchange)
-                    _Log.Info(m => m($"Duplicate response for open exchange: {response}"));
+                    _Log.Info(string.Format(CultureInfo.InvariantCulture, $"Duplicate response for open exchange: {response}"));
                     response.Duplicate = true;
                 }
                 else {
                     keyId = new Exchange.KeyID(exchange.CurrentRequest.ID, null, response.Session);
-                    _Log.Debug(m => m($"Exchange got response: Cleaning up {keyId}"));
+                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, $"Exchange got response: Cleaning up {keyId}"));
                     _exchangesByID.Remove(keyId);
                 }
 
                 if (response.Type == MessageType.ACK && exchange.CurrentRequest.ID != response.ID) {
                     // The token matches but not the MID. This is a response for an older exchange
-                    _Log.Warn(m => m($"Possible MID reuse before lifetime end: {response.TokenString} expected MID {exchange.CurrentRequest.ID} but received {response.ID}"));
+                    _Log.Warn(string.Format(CultureInfo.InvariantCulture, $"Possible MID reuse before lifetime end: {response.TokenString} expected MID {exchange.CurrentRequest.ID} but received {response.ID}"));
                 }
 
                 return exchange;
@@ -383,13 +384,13 @@ namespace Com.AugustCellars.CoAP.Net
                     // only act upon separate responses
                     Exchange prev = _deduplicator.Find(keyId);
                     if (prev != null) {
-                        _Log.Info(m => m($"Duplicate response for completed exchange: {response}"));
+                        _Log.Info(string.Format(CultureInfo.InvariantCulture, $"Duplicate response for completed exchange: {response}"));
                         response.Duplicate = true;
                         return prev;
                     }
                 }
                 else {
-                    _Log.Info(m => m($"Ignoring unmatchable piggy-backed response from {response.Source}: {response}"));
+                    _Log.Info(string.Format(CultureInfo.InvariantCulture, $"Ignoring unmatchable piggy-backed response from {response.Source}: {response}"));
                 }
 
                 // ignore response
@@ -466,7 +467,7 @@ namespace Com.AugustCellars.CoAP.Net
 
                     Exchange.KeyUri uriKey = new Exchange.KeyUri(request, request.Source);
 
-                    _Log.Debug(m => m($"Remote ongoing completed, cleaning up {uriKey}"));
+                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, $"Remote ongoing completed, cleaning up {uriKey}"));
 
                     Exchange exc;
                     _ongoingExchanges.TryRemove(uriKey, out exc);

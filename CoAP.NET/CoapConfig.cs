@@ -53,7 +53,7 @@ namespace Com.AugustCellars.CoAP
 
         private const double Default_AckTimeoutScale = 2D;
 
-        private const int Default_MaxMessageSize = 1024;
+        private const int Default_MaxMessageSize = 128;
         private const int Default_BlockwiseStatusLifetime = 10 * 60 * 1000; // ms
         private const bool Default_UseRandomIdStart = true;
         private const int Default_TokenLength = 4;
@@ -64,10 +64,10 @@ namespace Com.AugustCellars.CoAP
         private const long Default_NotificationMaxAge = 128 * 1000; // ms
         private const long Default_NotificationCheckIntervalTime = 24 * 60 * 60 * 1000; // ms
         private const int Default_NotificationCheckIntervalCount = 100;
-        private const int Default_NotificationReregistrationBackoff = 2000; // ms
+        private const int Default_ObservationLifetime = 60; // s
         private const int Default_ChannelReceivePacketSize = 2048;
 
-        private const int Default_Oscoap_MaxMessageSize = 1024;
+        private const int Default_Oscoap_MaxMessageSize = 128;
         private const int Default_Oscoap_DefaultBlockSize = CoapConstants.DefaultBlockSize;
         private const int Default_Oscoap_BlockwiseStatusLifetime = 10 *60 * 1000; // ms
         private const bool Default_Oscoap_ReplayWindow = true;
@@ -231,10 +231,10 @@ namespace Com.AugustCellars.CoAP
         }
 
         /// <inheritdoc/>
-        public int NotificationReregistrationBackoff
+        public int ObservationLifetime
         {
-            get => GetInt("NotificationReregistrationBackoff", Default_NotificationReregistrationBackoff);
-            set => SetValue("NotificationReregistrationBackoff", value);
+            get => GetInt("ObservationLifetime", Default_ObservationLifetime);
+            set => SetValue("ObservationLifetime", value);
         }
 
         /// <inheritdoc/>

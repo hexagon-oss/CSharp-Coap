@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Com.AugustCellars.CoAP.Log;
 using Com.AugustCellars.CoAP.Net;
 
@@ -21,7 +22,7 @@ namespace Com.AugustCellars.CoAP
     /// </summary>
     public class CoapClient
     {
-        private static readonly ILogger _Log = LogManager.GetLogger(typeof(CoapClient));
+        private static readonly ILogger _Log = Logging.GetLogger(typeof(CoapClient));
         private static readonly IEnumerable<WebLink> _EmptyLinks = new WebLink[0];
         private readonly ICoapConfig _config;
         private MessageType _type = MessageType.CON;
@@ -251,7 +252,7 @@ namespace Com.AugustCellars.CoAP
                 discover.Accept = mediaType;
             }
 
-            Response links = discover.Send().WaitForResponse(Timeout);
+            IResponse links = discover.Send().WaitForResponse(Timeout);
             if (links == null) {
                 // if no response, return null (e.g., timeout)
                 return null;
@@ -621,7 +622,7 @@ namespace Com.AugustCellars.CoAP
         /// <returns>CoAP response</returns>
         public Response Send(Request request)
         {
-            return Prepare(request).Send().WaitForResponse(Timeout);
+            return Prepare(request).Send().WaitForResponse(Timeout) as Response;
         }
 
         /// <summary>
@@ -706,7 +707,7 @@ namespace Com.AugustCellars.CoAP
         private CoapObserveRelation Observe(Request request, Action<Response> notify, Action<FailReason> error)
         {
             CoapObserveRelation relation = ObserveAsync(request, notify, error);
-            Response response = relation.Request.WaitForResponse(Timeout);
+            Response response = relation.Request.WaitForResponse(Timeout) as Response;
             if (response == null || !response.HasOption(OptionType.Observe)) {
                 relation.Canceled = true;
             }
@@ -717,8 +718,7 @@ namespace Com.AugustCellars.CoAP
 
         private CoapObserveRelation ObserveAsync(Request request, Action<Response> notify, Action<FailReason> error)
         {
-            IEndPoint endpoint = GetEffectiveEndpoint(request);
-            CoapObserveRelation relation = new CoapObserveRelation(request, endpoint, _config);
+            CoapObserveRelation relation = new CoapObserveRelation(request, _config);
 
             request.Respond += (o, e) =>
             {
@@ -729,7 +729,7 @@ namespace Com.AugustCellars.CoAP
                         Deliver(notify, e);
                     }
                     else {
-                        _Log.Debug(m => m("Dropping old notification: {0}", resp));
+                        _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Dropping old notification: {0}", resp));
                     }
                 }
             };
@@ -741,7 +741,7 @@ namespace Com.AugustCellars.CoAP
             request.Rejected += (o, e) => fail(FailReason.Rejected);
             request.TimedOut += (o, e) => fail(FailReason.TimedOut);
 
-            Prepare(request, endpoint).Send();
+            Prepare(request, request.EndPoint).Send();
             return relation;
         }
 

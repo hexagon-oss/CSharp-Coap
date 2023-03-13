@@ -13,6 +13,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.Timers;
 using Com.AugustCellars.CoAP.Log;
 using Com.AugustCellars.CoAP.Net;
@@ -24,7 +25,7 @@ namespace Com.AugustCellars.CoAP.Stack
     /// </summary>
     public class ReliabilityLayer : AbstractLayer
     {
-        static readonly ILogger _Log = LogManager.GetLogger(typeof(ReliabilityLayer));
+        static readonly ILogger _Log = Logging.GetLogger(typeof(ReliabilityLayer));
         static readonly object _TransmissionContextKey = "TransmissionContext";
 
         private readonly Random _rand = new Random();
@@ -92,7 +93,7 @@ namespace Com.AugustCellars.CoAP.Stack
             }
 
             if (request.Type == MessageType.CON) {
-                _Log.Debug(m => m("Scheduling retransmission for {0}", request));
+                _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Scheduling retransmission for {0}", request));
                 PrepareRetransmission(exchange, request, ctx => SendRequest(nextLayer, exchange, request));
             }
 
@@ -132,11 +133,11 @@ namespace Com.AugustCellars.CoAP.Stack
             }
 
             if (response.Type == MessageType.CON) {
-                _Log.Debug(m => m("Scheduling retransmission for {0}", response));
+                _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Scheduling retransmission for {0}", response));
                 PrepareRetransmission(exchange, response, ctx => SendResponse(nextLayer, exchange, response));
             }
             else if (response.Type == MessageType.NON && response.HasOption(OptionType.Observe)) {
-                _Log.Debug(m => m($"Scheduling timeout for {response}  @ {_nonTimeout}"));
+                _Log.Debug(string.Format(CultureInfo.InvariantCulture, $"Scheduling timeout for {response}  @ {_nonTimeout}"));
                 PrepareTimeout(exchange, response);
             }
 
@@ -269,7 +270,7 @@ namespace Com.AugustCellars.CoAP.Stack
                 ctx.CurrentTimeout = InitialTimeout(_ackTimeout, _ackRandomFactor);
             }
 
-            _Log.Debug(m => m("Send request, failed transmissions: {0}", ctx.FailedTransmissionCount));
+            _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Send request, failed transmissions: {0}", ctx.FailedTransmissionCount));
 
             ctx.Start();
         }
@@ -283,7 +284,7 @@ namespace Com.AugustCellars.CoAP.Stack
                 ctx.CurrentTimeout = _nonTimeout;
             }
 
-            _Log.Debug(m => m("Send request, timeout only"));
+            _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Send request, timeout only"));
 
             ctx.Start();
         }
@@ -360,10 +361,10 @@ namespace Com.AugustCellars.CoAP.Stack
                 if (_Log.IsDebugEnabled) {
                     _Log.Debug("Cancel retransmission for -->");
                     if (_exchange.Origin == Origin.Local) {
-                        _Log.Debug(_exchange.CurrentRequest);
+                        _Log.Debug(_exchange.CurrentRequest.ToString());
                     }
                     else {
-                        _Log.Debug(_exchange.CurrentResponse);
+                        _Log.Debug(_exchange.CurrentResponse.ToString());
                     }
                 }
             }
@@ -384,16 +385,16 @@ namespace Com.AugustCellars.CoAP.Stack
                 int failedCount = ++FailedTransmissionCount;
 
                 if (_message.IsAcknowledged) {
-                    _Log.Debug(m => m("Timeout: message already acknowledged, cancel retransmission of {0}", _message));
+                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Timeout: message already acknowledged, cancel retransmission of {0}", _message));
                 }
                 else if (_message.IsRejected) {
-                    _Log.Debug(m => m("Timeout: message already rejected, cancel retransmission of {0}", _message));
+                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Timeout: message already rejected, cancel retransmission of {0}", _message));
                 }
                 else if (_message.IsCancelled) {
-                    _Log.Debug(m => m("Timeout: canceled (ID={0}), do not retransmit", _message.ID));
+                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Timeout: canceled (ID={0}), do not retransmit", _message.ID));
                 }
                 else if (failedCount <= (_message.MaxRetransmit != 0 ? _message.MaxRetransmit : _maxRetransmitCount)) {
-                    _Log.Debug(m => m("Timeout: retransmit message, failed: {0}, message: {1}", failedCount, _message));
+                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Timeout: retransmit message, failed: {0}, message: {1}", failedCount, _message));
 
                     _message.FireRetransmitting();
 
@@ -403,7 +404,7 @@ namespace Com.AugustCellars.CoAP.Stack
                     }
                 }
                 else {
-                    _Log.Debug(m => m("Timeout: retransmission limit reached, exchange failed, message: {0}", _message));
+                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Timeout: retransmission limit reached, exchange failed, message: {0}", _message));
                     _exchange.TimedOut = true;
                     _message.IsTimedOut = true;
                     _exchange.Remove(_TransmissionContextKey);

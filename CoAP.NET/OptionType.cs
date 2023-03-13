@@ -64,6 +64,11 @@ namespace Com.AugustCellars.CoAP
         /// </summary>
         LocationPath = 8,
         /// <summary>
+        /// draft-ietf-core-observe-01
+        /// For robustness, an observation relationship is automatically ended after a negotiated duration of time. A client needs to refresh the relationship before the lifetime ends if it wants to be kept in the list of observers. The server includes the remaining lifetime duration in each notification.
+        /// </summary>
+        ObserveLifetime = 10,
+        /// <summary>
         /// C, String, 1-270 B, ""
         /// <remarks>RFC 7252</remarks>
         /// </summary>

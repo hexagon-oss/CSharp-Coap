@@ -30,7 +30,7 @@ namespace Com.AugustCellars.CoAP
         [TestInitialize]
         public void SetupServer()
         {
-            Log.LogManager.Level = Log.LogLevel.Fatal;
+            Log.Logging.Level = Log.LogLevel.Fatal;
             _config = new CoapConfig();
             _config.DefaultBlockSize = 32;
             _config.MaxMessageSize = 32;
@@ -102,7 +102,7 @@ namespace Com.AugustCellars.CoAP
                 request.Send(_clientEndpoint);
 
                 // receive response and check
-                Response response = request.WaitForResponse(1000);
+                IResponse response = request.WaitForResponse(1000);
 
                 Assert.IsNotNull(response);
                 payload = response.PayloadString;
@@ -131,7 +131,7 @@ namespace Com.AugustCellars.CoAP
                 request.Send(_clientEndpoint);
 
                 // receive response and check
-                Response response = request.WaitForResponse(1000);
+                IResponse response = request.WaitForResponse(1000);
 
                 Assert.IsNotNull(response);
                 payload = response.PayloadString;

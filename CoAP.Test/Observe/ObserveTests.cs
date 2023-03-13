@@ -40,7 +40,7 @@ namespace CoAP.Test.Std10.Observe
         [TestInitialize]
         public void SetupServer()
         {
-            LogManager.Level = LogLevel.Debug;
+            Logging.Level = LogLevel.Debug;
             CreateServer();
         }
 
