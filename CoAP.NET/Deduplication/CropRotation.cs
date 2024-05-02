@@ -27,7 +27,7 @@ namespace Com.AugustCellars.CoAP.Deduplication
     /// </summary>
     internal class CropRotation : IDeduplicator, IDisposable
     {
-        private readonly ConcurrentDictionary<Exchange.KeyID, Exchange>[] _maps;
+        private readonly ConcurrentDictionary<Exchange.KeyTokenID, Exchange>[] _maps;
         private Int32 _first;
         private Int32 _second;
         private Timer _timer;
@@ -37,10 +37,10 @@ namespace Com.AugustCellars.CoAP.Deduplication
 
         public CropRotation(ICoapConfig config)
         {
-            _maps = new ConcurrentDictionary<Exchange.KeyID, Exchange>[3];
-            _maps[0] = new ConcurrentDictionary<Exchange.KeyID, Exchange>();
-            _maps[1] = new ConcurrentDictionary<Exchange.KeyID, Exchange>();
-            _maps[2] = new ConcurrentDictionary<Exchange.KeyID, Exchange>();
+            _maps = new ConcurrentDictionary<Exchange.KeyTokenID, Exchange>[3];
+            _maps[0] = new ConcurrentDictionary<Exchange.KeyTokenID, Exchange>();
+            _maps[1] = new ConcurrentDictionary<Exchange.KeyTokenID, Exchange>();
+            _maps[2] = new ConcurrentDictionary<Exchange.KeyTokenID, Exchange>();
             _first = 0;
             _second = 1;
 #if NETSTANDARD1_3
@@ -101,12 +101,12 @@ namespace Com.AugustCellars.CoAP.Deduplication
         }
 
         /// <inheritdoc/>
-        public Exchange FindPrevious(Exchange.KeyID key, Exchange exchange)
+        public Exchange FindPrevious(Exchange.KeyTokenID keyToken, Exchange exchange)
         {
             Int32 f = _first, s = _second;
             Exchange prev = null;
             
-            _maps[f].AddOrUpdate(key, exchange, (k, v) =>
+            _maps[f].AddOrUpdate(keyToken, exchange, (k, v) =>
             {
                 prev = v;
                 return exchange;
@@ -114,7 +114,7 @@ namespace Com.AugustCellars.CoAP.Deduplication
             if (prev != null || f == s)
                 return prev;
 
-            prev = _maps[s].AddOrUpdate(key, exchange, (k, v) =>
+            prev = _maps[s].AddOrUpdate(keyToken, exchange, (k, v) =>
             {
                 prev = v;
                 return exchange;
@@ -123,15 +123,15 @@ namespace Com.AugustCellars.CoAP.Deduplication
         }
 
         /// <inheritdoc/>
-        public Exchange Find(Exchange.KeyID key)
+        public Exchange Find(Exchange.KeyTokenID keyToken)
         {
             Int32 f = _first, s = _second;
             Exchange prev;
-            if (_maps[f].TryGetValue(key, out prev) || f == s) {
+            if (_maps[f].TryGetValue(keyToken, out prev) || f == s) {
                 return prev;
             }
 
-            _maps[s].TryGetValue(key, out prev);
+            _maps[s].TryGetValue(keyToken, out prev);
             return prev;
         }
 

@@ -12,6 +12,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Com.AugustCellars.CoAP.Log;
 #if NETSTANDARD1_3
 using System.Threading;
 #else
@@ -30,15 +31,18 @@ namespace Com.AugustCellars.CoAP.Deduplication
         static readonly ILogger _Log = LogManager.GetLogger(typeof(SweepDeduplicator));
 #endif
 
-        private readonly ConcurrentDictionary<Exchange.KeyID, Exchange> _incommingMessages
-            = new ConcurrentDictionary<Exchange.KeyID, Exchange>();
+        private readonly ConcurrentDictionary<Exchange.KeyTokenID, Exchange> _incommingMessages
+            = new ConcurrentDictionary<Exchange.KeyTokenID, Exchange>();
         private Timer _timer;
         private readonly ICoapConfig _config;
-        // private int _period;
+		// private int _period;
 
-        public SweepDeduplicator(ICoapConfig config)
+		private static readonly ILogger _Log = Logging.GetLogger(typeof(SweepDeduplicator));
+
+		public SweepDeduplicator(ICoapConfig config)
         {
-            _config = config;
+	        _Log.Debug("Sweep created.");
+			_config = config;
 #if NETSTANDARD1_3
             _period = (int) config.MarkAndSweepInterval;
 #else
@@ -53,18 +57,19 @@ namespace Com.AugustCellars.CoAP.Deduplication
         private void Sweep(Object obj, ElapsedEventArgs e)
 #endif
         {
+	        _Log.Debug($"Sweeping before: {_incommingMessages.Count} items");
 #if NETSTANDARD1_3
             SweepDeduplicator sender = obj as SweepDeduplicator;
 #else
-            SweepDeduplicator sender = this;
+			SweepDeduplicator sender = this;
 #endif
 #if LOG_SWEEP_DEDUPLICATOR
             log.Debug(m => m("Start Mark-And-Sweep with {0} entries", _incommingMessages.Count));
 #endif
 
             DateTime oldestAllowed = DateTime.Now.AddMilliseconds(-sender._config.ExchangeLifetime);
-            List<Exchange.KeyID> keysToRemove = new List<Exchange.KeyID>();
-            foreach (KeyValuePair<Exchange.KeyID, Exchange> pair in sender._incommingMessages) {
+            List<Exchange.KeyTokenID> keysToRemove = new List<Exchange.KeyTokenID>();
+            foreach (KeyValuePair<Exchange.KeyTokenID, Exchange> pair in sender._incommingMessages) {
                 if (pair.Value.Timestamp < oldestAllowed) {
 #if LOG_SWEEP_DEDUPLICATOR
                     log.Debug(m => m("Mark-And-Sweep removes {0}", pair.Key));
@@ -74,30 +79,35 @@ namespace Com.AugustCellars.CoAP.Deduplication
             }
             if (keysToRemove.Count > 0) {
                 Exchange ex;
-                foreach (Exchange.KeyID key in keysToRemove) {
+                foreach (Exchange.KeyTokenID key in keysToRemove) {
                     sender._incommingMessages.TryRemove(key, out ex);
                 }
             }
-        }
+            _Log.Debug($"Sweeping afterwards: {_incommingMessages.Count} items");
+		}
 
         /// <inheritdoc/>
         public void Start()
         {
+	        _Log.Debug("Sweep started.");
+
 #if NETSTANDARD1_3
             _timer = new Timer(Sweep, this, _period, _period);
 #else
-            _timer.Start();
+			_timer.Start();
 #endif
         }
 
         /// <inheritdoc/>
         public void Stop()
         {
+	        _Log.Debug("Sweep stopped.");
+
 #if NETSTANDARD1_3
             _timer.Dispose();
             _timer = null;
 #else
-            _timer.Stop();
+			_timer.Stop();
 #endif
             Clear();
         }
@@ -105,14 +115,15 @@ namespace Com.AugustCellars.CoAP.Deduplication
         /// <inheritdoc/>
         public void Clear()
         {
-            _incommingMessages.Clear();
+	        _Log.Debug($"Sweep cleared {_incommingMessages.Count}.");
+			_incommingMessages.Clear();
         }
 
         /// <inheritdoc/>
-        public Exchange FindPrevious(Exchange.KeyID key, Exchange exchange)
+        public Exchange FindPrevious(Exchange.KeyTokenID keyToken, Exchange exchange)
         {
             Exchange prev = null;
-            _incommingMessages.AddOrUpdate(key, exchange, (k, v) =>
+            _incommingMessages.AddOrUpdate(keyToken, exchange, (k, v) =>
             {
                 prev = v;
                 return exchange;
@@ -121,10 +132,10 @@ namespace Com.AugustCellars.CoAP.Deduplication
         }
 
         /// <inheritdoc/>
-        public Exchange Find(Exchange.KeyID key)
+        public Exchange Find(Exchange.KeyTokenID keyToken)
         {
             Exchange prev;
-            _incommingMessages.TryGetValue(key, out prev);
+            _incommingMessages.TryGetValue(keyToken, out prev);
             return prev;
         }
 

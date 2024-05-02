@@ -37,13 +37,13 @@ namespace Com.AugustCellars.CoAP.Deduplication
         }
 
         /// <inheritdoc/>
-        public Exchange FindPrevious(Exchange.KeyID key, Exchange exchange)
+        public Exchange FindPrevious(Exchange.KeyTokenID keyToken, Exchange exchange)
         {
             return null;
         }
 
         /// <inheritdoc/>
-        public Exchange Find(Exchange.KeyID key)
+        public Exchange Find(Exchange.KeyTokenID keyToken)
         {
             return null;
         }

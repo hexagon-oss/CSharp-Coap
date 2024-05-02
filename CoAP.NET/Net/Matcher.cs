@@ -35,8 +35,8 @@ namespace Com.AugustCellars.CoAP.Net
         /// <summary>
         /// for all
         /// </summary>
-        readonly IDictionary<Exchange.KeyID, Exchange> _exchangesByID
-            = new ConcurrentDictionary<Exchange.KeyID, Exchange>();
+        readonly IDictionary<Exchange.KeyTokenID, Exchange> _exchangesByID
+            = new ConcurrentDictionary<Exchange.KeyTokenID, Exchange>();
 
         /// <summary>
         /// for outgoing
@@ -120,9 +120,6 @@ namespace Com.AugustCellars.CoAP.Net
              * If this request goes lost, we do not get anything back.
              */
 
-            // the MID is from the local namespace -- use blank address
-            Exchange.KeyID keyID = new Exchange.KeyID(request.ID, null, request.Session);
-
             //  If we do not have a token, then create one
             Exchange.KeyToken keyToken;
             if (request.Token == null) {
@@ -150,12 +147,14 @@ namespace Com.AugustCellars.CoAP.Net
             else {
                 keyToken = new Exchange.KeyToken(request.Token);
             }
+            // the MID is from the local namespace -- use blank address
+            Exchange.KeyTokenID keyTokenId = new Exchange.KeyTokenID(request.ID, request.Token, null, request.Session);
 
-            exchange.Completed += OnExchangeCompleted;
+			exchange.Completed += OnExchangeCompleted;
 
-            _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Stored open request by {0}, {1}", keyID, keyToken));
+            _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Stored open request by {0}, {1}", keyTokenId, keyToken));
 
-            _exchangesByID[keyID] = exchange;
+            _exchangesByID[keyTokenId] = exchange;
             _exchangesByToken[keyToken] = exchange;
         }
 
@@ -204,8 +203,8 @@ namespace Com.AugustCellars.CoAP.Net
             // Insert CON and NON to match ACKs and RSTs to the exchange
             // Do not insert ACKs and RSTs.
             if (response.Type == MessageType.CON || response.Type == MessageType.NON) {
-                Exchange.KeyID keyID = new Exchange.KeyID(response.ID, null, response.Session);
-                _exchangesByID[keyID] = exchange;
+                Exchange.KeyTokenID keyTokenId = new Exchange.KeyTokenID(response.ID, response.Token, null, response.Session);
+                _exchangesByID[keyTokenId] = exchange;
             }
 
             // Only CONs and Observe keep the exchange active
@@ -238,7 +237,7 @@ namespace Com.AugustCellars.CoAP.Net
 		     * (Retransmission is supposed to be done by the retransm. layer)
 		     */
 
-            Exchange.KeyID keyId = new Exchange.KeyID(request.ID, request.Source, request.Session);
+            Exchange.KeyTokenID keyTokenId = new Exchange.KeyTokenID(request.ID, request.Token, request.Source, request.Session);
 
             /*
              * The differentiation between the case where there is a Block1 or
@@ -248,7 +247,7 @@ namespace Com.AugustCellars.CoAP.Net
              */
             if (!request.HasOption(OptionType.Block1) && !request.HasOption(OptionType.Block2)) {
                 Exchange exchange = new Exchange(request, Origin.Remote);
-                Exchange previous = _deduplicator.FindPrevious(keyId, exchange);
+                Exchange previous = _deduplicator.FindPrevious(keyTokenId, exchange);
                 if (previous == null) {
                     exchange.Completed += OnExchangeCompleted;
                     return exchange;
@@ -271,7 +270,7 @@ namespace Com.AugustCellars.CoAP.Net
 
                 Exchange ongoing;
                 if (_ongoingExchanges.TryGetValue(keyUri, out ongoing)) {
-                    Exchange prev = _deduplicator.FindPrevious(keyId, ongoing);
+                    Exchange prev = _deduplicator.FindPrevious(keyTokenId, ongoing);
                     if (prev != null) {
                         if (_Log.IsInfoEnabled) {
                             _Log.Info("Duplicate ongoing request: " + request);
@@ -282,12 +281,12 @@ namespace Com.AugustCellars.CoAP.Net
                     else {
                         // the exchange is continuing, we can (i.e., must) clean up the previous response
                         if (ongoing.CurrentResponse.Type != MessageType.ACK && !ongoing.CurrentResponse.HasOption(OptionType.Observe)) {
-                            keyId = new Exchange.KeyID(ongoing.CurrentResponse.ID, null, ongoing.CurrentResponse.Session);
+                            keyTokenId = new Exchange.KeyTokenID(ongoing.CurrentResponse.ID, ongoing.CurrentResponse.Token, null, ongoing.CurrentResponse.Session);
                             if (_Log.IsDebugEnabled) {
-                                _Log.Debug("Ongoing exchange got new request, cleaning up " + keyId);
+                                _Log.Debug("Ongoing exchange got new request, cleaning up " + keyTokenId);
                             }
 
-                            _exchangesByID.Remove(keyId);
+                            _exchangesByID.Remove(keyTokenId);
                         }
                     }
 
@@ -304,7 +303,7 @@ namespace Com.AugustCellars.CoAP.Net
                      */
 
                     Exchange exchange = new Exchange(request, Origin.Remote);
-                    Exchange previous = _deduplicator.FindPrevious(keyId, exchange);
+                    Exchange previous = _deduplicator.FindPrevious(keyTokenId, exchange);
                     if (previous == null) {
                         if (_Log.IsDebugEnabled) {
                             _Log.Debug("New ongoing request, storing " + keyUri + " for " + request);
@@ -336,14 +335,14 @@ namespace Com.AugustCellars.CoAP.Net
 		     * 		=> resend ACK
 		     */
 
-            Exchange.KeyID keyId;
+            Exchange.KeyTokenID keyTokenId;
             if (response.Type == MessageType.ACK) {
                 // own namespace
-                keyId = new Exchange.KeyID(response.ID, null, response.Session);
+                keyTokenId = new Exchange.KeyTokenID(response.ID, response.Token, null, response.Session);
             }
             else {
                 // remote namespace
-                keyId = new Exchange.KeyID(response.ID, response.Source, response.Session);
+                keyTokenId = new Exchange.KeyTokenID(response.ID, response.Token, response.Source, response.Session);
             }
 
             Exchange.KeyToken keyToken = new Exchange.KeyToken(response.Token);
@@ -359,16 +358,16 @@ namespace Com.AugustCellars.CoAP.Net
                 }
 
                 // There is an exchange with the given token
-                Exchange prev = _deduplicator.FindPrevious(keyId, exchange);
+                Exchange prev = _deduplicator.FindPrevious(keyTokenId, exchange);
                 if (prev != null) {
                     // (and thus it holds: prev == exchange)
                     _Log.Info(string.Format(CultureInfo.InvariantCulture, $"Duplicate response for open exchange: {response}"));
                     response.Duplicate = true;
                 }
                 else {
-                    keyId = new Exchange.KeyID(exchange.CurrentRequest.ID, null, response.Session);
-                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, $"Exchange got response: Cleaning up {keyId}"));
-                    _exchangesByID.Remove(keyId);
+                    keyTokenId = new Exchange.KeyTokenID(exchange.CurrentRequest.ID, exchange.CurrentRequest.Token, null, response.Session);
+                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, $"Exchange got response: Cleaning up {keyTokenId}"));
+                    _exchangesByID.Remove(keyTokenId);
                 }
 
                 if (response.Type == MessageType.ACK && exchange.CurrentRequest.ID != response.ID) {
@@ -382,7 +381,7 @@ namespace Com.AugustCellars.CoAP.Net
                 // There is no exchange with the given token.
                 if (response.Type != MessageType.ACK) {
                     // only act upon separate responses
-                    Exchange prev = _deduplicator.Find(keyId);
+                    Exchange prev = _deduplicator.Find(keyTokenId);
                     if (prev != null) {
                         _Log.Info(string.Format(CultureInfo.InvariantCulture, $"Duplicate response for completed exchange: {response}"));
                         response.Duplicate = true;
@@ -402,12 +401,12 @@ namespace Com.AugustCellars.CoAP.Net
         public Exchange ReceiveEmptyMessage(EmptyMessage message)
         {
             // local namespace
-            Exchange.KeyID keyID = new Exchange.KeyID(message.ID, null, null);
+            Exchange.KeyTokenID keyTokenId = new Exchange.KeyTokenID(message.ID, message.Token, null, null);
             Exchange exchange;
-            if (_exchangesByID.TryGetValue(keyID, out exchange)) {
+            if (_exchangesByID.TryGetValue(keyTokenId, out exchange)) {
                 if (_Log.IsDebugEnabled)
-                    _Log.Debug("Exchange got reply: Cleaning up " + keyID);
-                _exchangesByID.Remove(keyID);
+                    _Log.Debug("Exchange got reply: Cleaning up " + keyTokenId);
+                _exchangesByID.Remove(keyTokenId);
                 return exchange;
             }
             else {
@@ -436,7 +435,7 @@ namespace Com.AugustCellars.CoAP.Net
 
             if (exchange.Origin == Origin.Local) {
                 // this endpoint created the Exchange by issuing a request
-                Exchange.KeyID keyID = new Exchange.KeyID(exchange.CurrentRequest.ID, null, null);
+                Exchange.KeyTokenID keyTokenId = new Exchange.KeyTokenID(exchange.CurrentRequest.ID, exchange.CurrentRequest.Token, null, null);
                 Exchange.KeyToken keyToken = new Exchange.KeyToken(exchange.CurrentRequest.Token);
 
                 if (_Log.IsDebugEnabled)
@@ -444,7 +443,7 @@ namespace Com.AugustCellars.CoAP.Net
 
                 _exchangesByToken.Remove(keyToken);
                 // in case an empty ACK was lost
-                _exchangesByID.Remove(keyID);
+                _exchangesByID.Remove(keyTokenId);
             }
             else // Origin.Remote
             {
@@ -456,10 +455,10 @@ namespace Com.AugustCellars.CoAP.Net
                 }
                 if (response != null && response.Type != MessageType.ACK) {
                     // only response MIDs are stored for ACK and RST, no reponse Tokens
-                    Exchange.KeyID midKey = new Exchange.KeyID(response.ID, null, response.Session);
+                    Exchange.KeyTokenID midKeyToken = new Exchange.KeyTokenID(response.ID, response.Token, null, response.Session);
                     //if (log.IsDebugEnabled)
                     //    log.Debug("Remote ongoing completed, cleaning up " + midKey);
-                    _exchangesByID.Remove(midKey);
+                    _exchangesByID.Remove(midKeyToken);
                 }
 
                 Request request = exchange.CurrentRequest;
