@@ -59,7 +59,7 @@ namespace Com.AugustCellars.CoAP
         private const int Default_TokenLength = 4;
         private const string Default_Deduplicator = Deduplication.DeduplicatorFactory.MarkAndSweepDeduplicator;
         private const int Default_CropRotationPeriod = 2000; // ms
-        private const int Default_ExchangeLifetime = 247 * 1000; // ms
+        private const int Default_ExchangeLifetime = 60 * 1000; // ms
         private const long Default_MarkAndSweepInterval = 10 * 1000; // ms
         private const long Default_NotificationMaxAge = 128 * 1000; // ms
         private const long Default_NotificationCheckIntervalTime = 24 * 60 * 60 * 1000; // ms
