@@ -262,19 +262,21 @@ namespace Com.AugustCellars.CoAP.Net
             return obj;
         }
 
-        public class KeyID
+        public class KeyTokenID
         {
             private readonly int _id;
+            private readonly byte[] _token;
             private readonly System.Net.EndPoint _endpoint;
             private readonly ISession _session;
             private readonly int _hash;
 
-            public KeyID(int id, System.Net.EndPoint ep, ISession session)
+            public KeyTokenID(int id, byte[] token, System.Net.EndPoint ep, ISession session)
             {
                 _id = id;
+                _token = token;
                 _endpoint = ep;
                 _session = session;
-                _hash = id * 31 + (ep == null ? 0 : ep.GetHashCode());
+                _hash = id * 31 + (ep == null ? 0 : ep.GetHashCode()) + ByteArrayUtils.ComputeHash(_token);
             }
 
             /// <inheritdoc/>
@@ -286,18 +288,20 @@ namespace Com.AugustCellars.CoAP.Net
             /// <inheritdoc/>
             public override bool Equals(object obj)
             {
-                KeyID other = obj as KeyID;
+                KeyTokenID other = obj as KeyTokenID;
                 if (other == null) {
                     return false;
                 }
 
-                return _id == other._id && Equals(_endpoint, other._endpoint); // && (_session == other._session);
+                return _id == other._id 
+                       && Equals(_endpoint, other._endpoint)
+                       && _token.SequenceEqual(other._token);
             }
 
             /// <inheritdoc/>
             public override string ToString()
             {
-                return "KeyID[" + _id + " for " + _endpoint + "]";
+                return "KeyTokenID[" + _id + "|" + BitConverter.ToString(_token) + " for " + _endpoint + "]";
             }
         }
 

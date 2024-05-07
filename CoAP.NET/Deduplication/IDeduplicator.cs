@@ -38,17 +38,17 @@ namespace Com.AugustCellars.CoAP.Deduplication
         /// Checks if the specified key is already associated with a previous
         /// exchange and otherwise associates the key with the exchange specified.
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="keyToken"></param>
         /// <param name="exchange"></param>
         /// <returns>the previous exchange associated with the specified key,
         /// or <code>null</code> if there was no mapping for the key</returns>
-        Exchange FindPrevious(Exchange.KeyID key, Exchange exchange);
+        Exchange FindPrevious(Exchange.KeyTokenID keyToken, Exchange exchange);
 
         /// <summary>
         /// Find an exchange based on the key id
         /// </summary>
-        /// <param name="key">key to search for</param>
+        /// <param name="keyToken">key to search for</param>
         /// <returns>Exchange if one exists</returns>
-        Exchange Find(Exchange.KeyID key);
+        Exchange Find(Exchange.KeyTokenID keyToken);
     }
 }

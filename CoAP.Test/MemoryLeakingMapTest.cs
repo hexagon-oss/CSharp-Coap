@@ -262,10 +262,10 @@ namespace Com.AugustCellars.CoAP
         private Int32 _exchangeLifecycle;
         private Int32 _sweepDuplicatorInterval;
 
-        private IDictionary<Exchange.KeyID, Exchange> _exchangesByID;       // Outgoing to match with inc ACK/RST
+        private IDictionary<Exchange.KeyTokenID, Exchange> _exchangesByID;       // Outgoing to match with inc ACK/RST
         private IDictionary<Exchange.KeyToken, Exchange> _exchangesByToken; // Outgoing to match with inc responses
         private IDictionary<Exchange.KeyUri, Exchange> _ongoingExchanges;   // for blockwise
-        private IDictionary<Exchange.KeyID, Exchange> _incommingMessages;   // for deduplication
+        private IDictionary<Exchange.KeyTokenID, Exchange> _incommingMessages;   // for deduplication
 
         public EndpointSurveillant(String name, IEndPoint endpoint)
         {
@@ -296,12 +296,12 @@ namespace Com.AugustCellars.CoAP
         {
             IMatcher matcher = ExtractField<IMatcher>(endpoint, "_matcher");
 
-            _exchangesByID = ExtractField<IDictionary<Exchange.KeyID, Exchange>>(matcher, "_exchangesByID");
+            _exchangesByID = ExtractField<IDictionary<Exchange.KeyTokenID, Exchange>>(matcher, "_exchangesByID");
             _exchangesByToken = ExtractField<IDictionary<Exchange.KeyToken, Exchange>>(matcher, "_exchangesByToken");
             _ongoingExchanges = ExtractField<IDictionary<Exchange.KeyUri, Exchange>>(matcher, "_ongoingExchanges");
 
             IDeduplicator deduplicator = ExtractField<IDeduplicator>(matcher, "_deduplicator");
-            _incommingMessages = ExtractField<IDictionary<Exchange.KeyID, Exchange>>(deduplicator, "_incommingMessages");
+            _incommingMessages = ExtractField<IDictionary<Exchange.KeyTokenID, Exchange>>(deduplicator, "_incommingMessages");
         }
 
         private static T ExtractField<T>(Object obj, String name)
