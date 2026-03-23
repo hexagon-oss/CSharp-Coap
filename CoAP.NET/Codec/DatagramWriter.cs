@@ -46,7 +46,7 @@ namespace Com.AugustCellars.CoAP.Codec
             if (numBits < 32 && data >= (1 << numBits))
             {
                 if (log.IsWarnEnabled)
-                    log.Warn(String.Format("Truncating value {0} to {1}-bit integer", data, numBits));
+                    log.Warn($"Truncating value {data} to {numBits}-bit integer");
             }
 
             for (Int32 i = numBits - 1; i >= 0; i--)

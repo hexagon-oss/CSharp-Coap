@@ -86,7 +86,7 @@ namespace Com.AugustCellars.CoAP
                         builder.Append(((Int32) Value));
                     }
                     else {
-                        _Log.Error(string.Format(CultureInfo.InvariantCulture, "Serializing attribute of unexpected type: {0} ({1})", Name, Value.GetType().Name));
+                        _Log.Error($"Serializing attribute of unexpected type: {Name} ({Value.GetType().Name})");
                     }
                 }
             }
@@ -95,7 +95,7 @@ namespace Com.AugustCellars.CoAP
         /// <inheritdoc/>
         public override String ToString()
         {
-            return String.Format("name: {0} value: {1}", Name, Value);
+            return $"name: {Name} value: {Value}";
         }
 
         /// <inheritdoc/>

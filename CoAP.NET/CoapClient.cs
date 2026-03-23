@@ -729,7 +729,7 @@ namespace Com.AugustCellars.CoAP
                         Deliver(notify, e);
                     }
                     else {
-                        _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Dropping old notification: {0}", resp));
+                        _Log.Debug($"Dropping old notification: {resp}");
                     }
                 }
             };

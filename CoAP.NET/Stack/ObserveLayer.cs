@@ -41,7 +41,7 @@ namespace Com.AugustCellars.CoAP.Stack
                 if (exchange.Request.IsAcknowledged || exchange.Request.Type == MessageType.NON) {
                     // Transmit errors as CON
                     if (!Code.IsSuccess(response.Code)) {
-                        log.Debug(string.Format(CultureInfo.InvariantCulture, $"Response has error code {response.Code} and must be sent as CON"));
+                        log.Debug($"Response has error code {response.Code} and must be sent as CON");
                         response.Type = MessageType.CON;
                         relation.Cancel();
                     }
@@ -91,7 +91,7 @@ namespace Com.AugustCellars.CoAP.Stack
                 lock (exchange) {
                     Response current = relation.CurrentControlNotification;
                     if (current != null && IsInTransit(current)) { 
-                        log.Debug(string.Format(CultureInfo.InvariantCulture, $"A former notification is still in transit. Postpone {response}"));
+                        log.Debug($"A former notification is still in transit. Postpone {response}");
                         if (relation.NextControlNotification != null && relation.NextControlNotification.Type == MessageType.CON) {
                             response.Type = MessageType.CON;
                         }
@@ -217,18 +217,18 @@ namespace Com.AugustCellars.CoAP.Stack
 
             response.TimedOut += (o, e) => {
                 ObserveRelation relation = exchange.Relation; 
-                log.Debug(string.Format(CultureInfo.InvariantCulture, $"Notification {relation.Exchange.Request.TokenString} timed out. Cancel all relations with source {relation.Source}"));
+                log.Debug($"Notification {relation.Exchange.Request.TokenString} timed out. Cancel all relations with source {relation.Source}");
                 relation.CancelAll();
             };
         }
 
         private void PrepareTimeout(INextLayer nextLayer, Exchange exchange, Response response)
         {
-            log.Debug(string.Format(CultureInfo.InvariantCulture, $"PrepareTimeout - for response {response}"));
+            log.Debug($"PrepareTimeout - for response {response}");
             response.TimedOut += (o, e) => {
                 lock (exchange) {
                     ObserveRelation relation = exchange.Relation;
-                    log.Debug(string.Format(CultureInfo.InvariantCulture, $"Notification {relation.Exchange.Request.TokenString} timed out."));
+                    log.Debug($"Notification {relation.Exchange.Request.TokenString} timed out.");
 
                     Response next = relation.NextControlNotification;
                     if (next != null) {
@@ -254,7 +254,7 @@ namespace Com.AugustCellars.CoAP.Stack
             ReregistrationContext ctx = exchange.GetOrAdd<ReregistrationContext>(
                 reregistrationContextKey, _ => new ReregistrationContext(exchange, timeoutMs, reregister));
 
-            log.Debug(string.Format(CultureInfo.InvariantCulture, "Scheduling re-registration in " + timeoutMs + "ms for " + exchange.Request));
+            log.Debug("Scheduling re-registration in " + timeoutMs + "ms for " + exchange.Request);
 
             ctx.Duration = timeoutMs; // update in case exchange already contained this value
             ctx.Restart();
@@ -325,14 +325,14 @@ namespace Com.AugustCellars.CoAP.Stack
                     refresh.Destination = request.Destination;
                     refresh.CopyEventHandler(request);
                     refresh.ObserveRelation = request.ObserveRelation;
-                    log.Debug(string.Format(CultureInfo.InvariantCulture, "Re-registering for " + request));
+                    log.Debug("Re-registering for " + request);
                     request.FireReregister(refresh);
                     if (!refresh.IsCancelled) {
                         _reregister(refresh);
                     }
                 }
                 else { 
-                    log.Debug(string.Format(CultureInfo.InvariantCulture, "Dropping re-registration for canceled " + request));
+                    log.Debug("Dropping re-registration for canceled " + request);
                 }
             }
         }
