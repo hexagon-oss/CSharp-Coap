@@ -294,10 +294,10 @@ namespace Com.AugustCellars.CoAP.Server.Resources
 
             if (old != null) {
                 old.Cancel();
-                _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Replacing observe relation between {0} and resource {1}", relation.Key, Uri));
+                _Log.Debug($"Replacing observe relation between {relation.Key} and resource {Uri}");
             }
             else {
-                _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Successfully established observe relation between {0} and resource {1}", relation.Key, Uri));
+                _Log.Debug($"Successfully established observe relation between {relation.Key} and resource {Uri}");
             }
         }
 

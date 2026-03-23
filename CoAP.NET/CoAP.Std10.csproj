@@ -4,7 +4,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net462;netstandard2.0</TargetFrameworks>
+	  <TargetFramework>net8.0</TargetFramework>
 	  <PackageProjectUrl>https://github.com/hexagon-oss/CSharp-Coap</PackageProjectUrl>
 	  <RepositoryUrl>https://github.com/hexagon-oss/CSharp-Coap</RepositoryUrl>
     <PackageId>Com.AugustCellars.CoAP</PackageId>

@@ -93,7 +93,7 @@ namespace Com.AugustCellars.CoAP.Stack
             }
 
             if (request.Type == MessageType.CON) {
-                _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Scheduling retransmission for {0}", request));
+                _Log.Debug($"Scheduling retransmission for {request}");
                 PrepareRetransmission(exchange, request, ctx => SendRequest(nextLayer, exchange, request));
             }
 
@@ -133,11 +133,11 @@ namespace Com.AugustCellars.CoAP.Stack
             }
 
             if (response.Type == MessageType.CON) {
-                _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Scheduling retransmission for {0}", response));
+                _Log.Debug($"Scheduling retransmission for {response}");
                 PrepareRetransmission(exchange, response, ctx => SendResponse(nextLayer, exchange, response));
             }
             else if (response.Type == MessageType.NON && response.HasOption(OptionType.Observe)) {
-                _Log.Debug(string.Format(CultureInfo.InvariantCulture, $"Scheduling timeout for {response}  @ {_nonTimeout}"));
+                _Log.Debug($"Scheduling timeout for {response}  @ {_nonTimeout}");
                 PrepareTimeout(exchange, response);
             }
 
@@ -270,7 +270,7 @@ namespace Com.AugustCellars.CoAP.Stack
                 ctx.CurrentTimeout = InitialTimeout(_ackTimeout, _ackRandomFactor);
             }
 
-            _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Send request, failed transmissions: {0}", ctx.FailedTransmissionCount));
+            _Log.Debug($"Send request, failed transmissions: {ctx.FailedTransmissionCount}");
 
             ctx.Start();
         }
@@ -284,7 +284,7 @@ namespace Com.AugustCellars.CoAP.Stack
                 ctx.CurrentTimeout = _nonTimeout;
             }
 
-            _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Send request, timeout only"));
+            _Log.Debug("Send request, timeout only");
 
             ctx.Start();
         }
@@ -385,16 +385,16 @@ namespace Com.AugustCellars.CoAP.Stack
                 int failedCount = ++FailedTransmissionCount;
 
                 if (_message.IsAcknowledged) {
-                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Timeout: message already acknowledged, cancel retransmission of {0}", _message));
+                    _Log.Debug($"Timeout: message already acknowledged, cancel retransmission of {_message}");
                 }
                 else if (_message.IsRejected) {
-                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Timeout: message already rejected, cancel retransmission of {0}", _message));
+                    _Log.Debug($"Timeout: message already rejected, cancel retransmission of {_message}");
                 }
                 else if (_message.IsCancelled) {
-                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Timeout: canceled (ID={0}), do not retransmit", _message.ID));
+                    _Log.Debug($"Timeout: canceled (ID={_message.ID}), do not retransmit");
                 }
                 else if (failedCount <= (_message.MaxRetransmit != 0 ? _message.MaxRetransmit : _maxRetransmitCount)) {
-                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Timeout: retransmit message, failed: {0}, message: {1}", failedCount, _message));
+                    _Log.Debug($"Timeout: retransmit message, failed: {failedCount}, message: {_message}");
 
                     _message.FireRetransmitting();
 
@@ -404,7 +404,7 @@ namespace Com.AugustCellars.CoAP.Stack
                     }
                 }
                 else {
-                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Timeout: retransmission limit reached, exchange failed, message: {0}", _message));
+                    _Log.Debug($"Timeout: retransmission limit reached, exchange failed, message: {_message}");
                     _exchange.TimedOut = true;
                     _message.IsTimedOut = true;
                     _exchange.Remove(_TransmissionContextKey);

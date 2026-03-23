@@ -152,7 +152,7 @@ namespace Com.AugustCellars.CoAP.Net
 
 			exchange.Completed += OnExchangeCompleted;
 
-            _Log.Debug(string.Format(CultureInfo.InvariantCulture, "Stored open request by {0}, {1}", keyTokenId, keyToken));
+            _Log.Debug($"Stored open request by {keyTokenId}, {keyToken}");
 
             _exchangesByID[keyTokenId] = exchange;
             _exchangesByToken[keyToken] = exchange;
@@ -361,18 +361,18 @@ namespace Com.AugustCellars.CoAP.Net
                 Exchange prev = _deduplicator.FindPrevious(keyTokenId, exchange);
                 if (prev != null) {
                     // (and thus it holds: prev == exchange)
-                    _Log.Info(string.Format(CultureInfo.InvariantCulture, $"Duplicate response for open exchange: {response}"));
+                    _Log.Info($"Duplicate response for open exchange: {response}");
                     response.Duplicate = true;
                 }
                 else {
                     keyTokenId = new Exchange.KeyTokenID(exchange.CurrentRequest.ID, exchange.CurrentRequest.Token, null, response.Session);
-                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, $"Exchange got response: Cleaning up {keyTokenId}"));
+                    _Log.Debug($"Exchange got response: Cleaning up {keyTokenId}");
                     _exchangesByID.Remove(keyTokenId);
                 }
 
                 if (response.Type == MessageType.ACK && exchange.CurrentRequest.ID != response.ID) {
                     // The token matches but not the MID. This is a response for an older exchange
-                    _Log.Warn(string.Format(CultureInfo.InvariantCulture, $"Possible MID reuse before lifetime end: {response.TokenString} expected MID {exchange.CurrentRequest.ID} but received {response.ID}"));
+                    _Log.Warn($"Possible MID reuse before lifetime end: {response.TokenString} expected MID {exchange.CurrentRequest.ID} but received {response.ID}");
                 }
 
                 return exchange;
@@ -383,13 +383,13 @@ namespace Com.AugustCellars.CoAP.Net
                     // only act upon separate responses
                     Exchange prev = _deduplicator.Find(keyTokenId);
                     if (prev != null) {
-                        _Log.Info(string.Format(CultureInfo.InvariantCulture, $"Duplicate response for completed exchange: {response}"));
+                        _Log.Info($"Duplicate response for completed exchange: {response}");
                         response.Duplicate = true;
                         return prev;
                     }
                 }
                 else {
-                    _Log.Info(string.Format(CultureInfo.InvariantCulture, $"Ignoring unmatchable piggy-backed response from {response.Source}: {response}"));
+                    _Log.Info($"Ignoring unmatchable piggy-backed response from {response.Source}: {response}");
                 }
 
                 // ignore response
@@ -466,7 +466,7 @@ namespace Com.AugustCellars.CoAP.Net
 
                     Exchange.KeyUri uriKey = new Exchange.KeyUri(request, request.Source);
 
-                    _Log.Debug(string.Format(CultureInfo.InvariantCulture, $"Remote ongoing completed, cleaning up {uriKey}"));
+                    _Log.Debug($"Remote ongoing completed, cleaning up {uriKey}");
 
                     Exchange exc;
                     _ongoingExchanges.TryRemove(uriKey, out exc);
