@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Com.AugustCellars.COSE;
 
 namespace Com.AugustCellars.CoAP.OSCOAP
 {

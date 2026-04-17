@@ -2,12 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-// using System.Runtime.Remoting.Messaging;
 using System.Text;
-using PeterO.Cbor;
+using Com.AugustCellars.COSE;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
-using Com.AugustCellars.COSE;
+using PeterO.Cbor;
 
 namespace Com.AugustCellars.CoAP.OSCOAP
 {

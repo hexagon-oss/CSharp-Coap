@@ -738,5 +738,16 @@ namespace Com.AugustCellars.CoAP.Util
 
             return true;
         }
+
+        public override int GetHashCode()
+        {
+	        int code = 1;
+            for (int i = 0; i < Data.Count; i++)
+            {
+	            code = 31 * code + Data[i].SimpleValue;
+            }
+
+            return code;
+        }
     }
 }
