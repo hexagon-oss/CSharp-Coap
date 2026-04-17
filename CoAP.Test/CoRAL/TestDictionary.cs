@@ -45,13 +45,13 @@ namespace CoAP.Test.Std10.CoRAL
             Assert.AreEqual(8, result.AsInt32());
             _dictionary.Add(9, new Cori(CBORObject.DecodeFromBytes(Hex.Decode("8405000664666F726D"))));
 
-            Assert.ThrowsException<ArgumentException>(() =>_dictionary.Add(10, CBORObject.FromObject(DateTime.UtcNow)));
+            Assert.Throws<ArgumentException>(() =>_dictionary.Add(10, CBORObject.FromObject(DateTime.UtcNow)));
         }
 
         [TestMethod]
         public void AddNegativeKey()
         {
-            Assert.ThrowsException<ArgumentException>(() => { _dictionary.Add(-1, "invalid"); });
+            Assert.Throws<ArgumentException>(() => { _dictionary.Add(-1, "invalid"); });
         }
 
         [TestMethod]

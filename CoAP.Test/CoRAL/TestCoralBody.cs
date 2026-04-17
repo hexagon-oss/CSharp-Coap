@@ -31,8 +31,8 @@ namespace CoAP.Test.Std10.CoRAL
         public void TestConstructors()
         {
             Cori cori = new Cori("coap://host:99");
-            Assert.ThrowsException<ArgumentException>(() => new CoralBody(CBORObject.DecodeFromBytes(Hex.Decode("01")), cori, null));
-            Assert.ThrowsException<ArgumentException>(() => new CoralBody(CBORObject.DecodeFromBytes(Hex.Decode("830202820500")), cori, null));
+            Assert.Throws<ArgumentException>(() => new CoralBody(CBORObject.DecodeFromBytes(Hex.Decode("01")), cori, null));
+            Assert.Throws<ArgumentException>(() => new CoralBody(CBORObject.DecodeFromBytes(Hex.Decode("830202820500")), cori, null));
 
             CoralBody body = new CoralBody(CBORObject.DecodeFromBytes(Hex.Decode("81830202820500")), cori, _testDictionary);
             Assert.AreEqual(1, body.Length);

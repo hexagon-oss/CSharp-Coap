@@ -348,7 +348,7 @@ namespace CoAP.Test.Std10.Channel
                 s = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
                 s.Bind(new IPEndPoint(IPAddress.IPv6Any, 0));
             }
-            catch (SocketException e) {
+            catch (SocketException) {
                 returns = false;
             }
             finally {

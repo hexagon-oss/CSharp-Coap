@@ -84,10 +84,10 @@ namespace CoAP.Test.Std10.CoRAL
             Assert.AreEqual(null, link.Body);
 
             // [1, 2, 4]
-            Assert.ThrowsException<ArgumentException>(() => { link = new CoralLink(CBORObject.DecodeFromBytes(Hex.Decode("83010204")), cori, testDictionary); }, "Not an encoded CoRAL link");
+            Assert.Throws<ArgumentException>(() => { link = new CoralLink(CBORObject.DecodeFromBytes(Hex.Decode("83010204")), cori, testDictionary); }, "Not an encoded CoRAL link");
 
             // [2, true, false]
-            Assert.ThrowsException<ArgumentException>(() => { link = new CoralLink(CBORObject.DecodeFromBytes(Hex.Decode("8302F5F4")), cori, testDictionary); }, "Invalid relation in CoRAL link");
+            Assert.Throws<ArgumentException>(() => { link = new CoralLink(CBORObject.DecodeFromBytes(Hex.Decode("8302F5F4")), cori, testDictionary); }, "Invalid relation in CoRAL link");
 
             // [2, 2, false, [2, 3, true]]
             link = new CoralLink(CBORObject.DecodeFromBytes(Hex.Decode("840202F481830203F5")), cori, testDictionary);
@@ -135,12 +135,12 @@ namespace CoAP.Test.Std10.CoRAL
             Assert.AreEqual("coap://host:5/root/path", link.Target.ToString());
 
 
-            Assert.ThrowsException<ArgumentException>(() => link = new CoralLink("relation", CBORObject.FromObject(DateTime.UtcNow)));
-            Assert.ThrowsException<ArgumentException>(() => link = new CoralLink("http://test.augustcellars.com/relation", CBORObject.FromObject(DateTime.UtcNow)));
-            Assert.ThrowsException<ArgumentException>(() => link = new CoralLink("http://test.augustcellars.com/relation", CBORObject.NewArray()));
-            Assert.ThrowsException<ArgumentException>(() => link = new CoralLink("http://test.augustcellars.com/relation", CBORObject.NewMap()));
-            Assert.ThrowsException<ArgumentException>(() => link = new CoralLink("http://test.augustcellars.com/relation", CBORObject.FromSimpleValue(99)));
-            // Assert.ThrowsException<ArgumentException>(() => link = new CoralLink("relation", new Cori(CBORObject.DecodeFromBytes(Hex.Decode("8102")))));
+            Assert.Throws<ArgumentException>(() => link = new CoralLink("relation", CBORObject.FromObject(DateTime.UtcNow)));
+            Assert.Throws<ArgumentException>(() => link = new CoralLink("http://test.augustcellars.com/relation", CBORObject.FromObject(DateTime.UtcNow)));
+            Assert.Throws<ArgumentException>(() => link = new CoralLink("http://test.augustcellars.com/relation", CBORObject.NewArray()));
+            Assert.Throws<ArgumentException>(() => link = new CoralLink("http://test.augustcellars.com/relation", CBORObject.NewMap()));
+            Assert.Throws<ArgumentException>(() => link = new CoralLink("http://test.augustcellars.com/relation", CBORObject.FromSimpleValue(99)));
+            // Assert.Throws<ArgumentException>(() => link = new CoralLink("relation", new Cori(CBORObject.DecodeFromBytes(Hex.Decode("8102")))));
         }
 
         [TestMethod]

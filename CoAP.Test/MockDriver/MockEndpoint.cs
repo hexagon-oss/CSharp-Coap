@@ -141,7 +141,7 @@ namespace CoAP.Test.Std10.MockDriver
                 try {
                     message = decoder.DecodeEmptyMessage();
                 }
-                catch (Exception ex) {
+                catch (Exception) {
                     return;
                 }
 
