@@ -55,9 +55,6 @@ namespace Com.AugustCellars.CoAP
         [TestMethod]
         public void TestSynchronousCall()
         {
-            int notifications = 0;
-            AutoResetEvent syncEvent = new AutoResetEvent(false);
-
             Uri uri = new Uri("coap://localhost:" + _serverPort + "/" + TARGET);
             CoapClient client = new CoapClient(uri);
 
@@ -142,8 +139,6 @@ namespace Com.AugustCellars.CoAP
         [TestMethod]
         public void TestAsynchronousCall()
         {
-            int notifications = 0;
-
             Uri uri = new Uri("coap://localhost:" + _serverPort + "/" + TARGET);
             CoapClient client = new CoapClient(uri);
             client.Error += (o, e) => Fail(e.Reason);

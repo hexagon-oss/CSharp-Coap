@@ -31,7 +31,7 @@ namespace Com.AugustCellars.CoAP
         /// <summary>
         /// Gets or sets a value indicating whether this request is a multicast request or not.
         /// </summary>
-        new bool IsMulticast { get; }
+        bool IsMulticast { get; }
 
         /// <summary>
         /// Gets or sets the URI of this CoAP message.

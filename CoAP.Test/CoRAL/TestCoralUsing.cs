@@ -37,17 +37,16 @@ namespace CoAP.Test.Std10.CoRAL
 
             test.Add("", "http://example.org/ABC");
 
-            Assert.ThrowsException<ArgumentException>(
+            Assert.Throws<ArgumentException>(
                 () => test.Add("", "http://example.org/DEFG")
             );
 
-            Assert.ThrowsException<ArgumentException>(() => test.Add("key1", "http://example.org/ABC"));
+            Assert.Throws<ArgumentException>(() => test.Add("key1", "http://example.org/ABC"));
 
             test.Add("key2", "http://exmple.org/ABC/DEF#");
 
-            Assert.ThrowsException<ArgumentException>(() => test.Add("key2", "http://example.org/ABCD#"));
-
-            Assert.ThrowsException<ArgumentException>(()=> test.Add("key3", "http://exmple.org/ABC/DEF#"));
+            Assert.Throws<ArgumentException>(() => test.Add("key2", "http://example.org/ABCD#"));
+            Assert.Throws<ArgumentException>(()=> test.Add("key3", "http://exmple.org/ABC/DEF#"));
         }
     }
 }
