@@ -387,15 +387,18 @@ namespace Com.AugustCellars.CoAP.Channel
         /// <inheritdoc/>
         public void Send(byte[] data, ISession sessionReceive, System.Net.EndPoint ep)
         {
-            RawData raw = new RawData() {
-                Data = data,
-                EndPoint = ep
-            };
-            _sendingQueue.Enqueue(raw);
-            if (System.Threading.Interlocked.CompareExchange(ref _writing, 1, 0) > 0) {
-                return;
-            }
-            BeginSend();
+	        RawData raw = new RawData()
+	        {
+		        Data = data,
+		        EndPoint = ep
+	        };
+	        _sendingQueue.Enqueue(raw);
+	        if (System.Threading.Interlocked.CompareExchange(ref _writing, 1, 0) > 0)
+	        {
+		        return;
+	        }
+
+	        BeginSend();
         }
 
         /// <inheritdoc/>

@@ -119,6 +119,11 @@ namespace Com.AugustCellars.CoAP.OSCOAP
         /// </summary>
         public virtual IDigest Digest => _hMacHash.GetUnderlyingDigest();
 
+        public int GenerateBytes(Span<byte> output)
+        {
+	        throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Generate bytes
         /// </summary>

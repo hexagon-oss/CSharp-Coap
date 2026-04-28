@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Com.AugustCellars.COSE;
 using Org.BouncyCastle.Crypto.Tls;
+using Org.BouncyCastle.Tls;
 
 namespace Com.AugustCellars.CoAP.DTLS
 {
@@ -68,9 +69,8 @@ namespace Com.AugustCellars.CoAP.DTLS
         public int[] IntValues { get; set; }
 
         public int CipherSuite { get; set; }
-        public TlsSignerCredentials SignerCredentials { get; set; }
 
-        public IDictionary Dictionary { get; set; }
+        public IDictionary<int, byte[]> Dictionary { get; set; }
 
 #if SUPPORT_RPK
         public AbstractCertificate Certificate { get; set; }
