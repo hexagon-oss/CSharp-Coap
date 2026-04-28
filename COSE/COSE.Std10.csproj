@@ -56,8 +56,6 @@
 1.0.0
   * Name space has been changed from COSE to Com.AugustCellars.COSE
     </PackageReleaseNotes>
-    
-    <Configurations>Debug;Release;Deploy</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -74,8 +72,8 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_0;FOR_EXAMPLES</DefineConstants>
-    <DefineConstants>TRACE;DEBUG;NETSTANDARD1_0; FOR_EXAMPLES</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
