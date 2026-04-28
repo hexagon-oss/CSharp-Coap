@@ -136,7 +136,7 @@ namespace Com.AugustCellars.CoAP.DTLS
                     content += Encoding.UTF8.GetString(exchange.Request.TlsContext.AuthenticationKey[CoseKeyKeys.KeyIdentifier].GetByteString());
                 }
                 else {
-                    content += exchange.Request.TlsContext.AuthenticationCertificate.GetCertificateAt(0).Subject.ToString();
+                    content += exchange.Request.TlsContext.AuthenticationCertificate.GetCertificateAt(0).ToString();
                 }
 
                 exchange.Respond(content);

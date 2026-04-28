@@ -136,7 +136,7 @@ namespace CoAP.Test.Std10.OSCOAP
                 request.Send(_clientEndpoint);
 
                 // receive response and check
-                IResponse response = request.WaitForResponse(/*1000*/);
+                IResponse response = request.WaitForResponse(1000);
 
                 Assert.IsNotNull(response);
                 payload = response.PayloadString;

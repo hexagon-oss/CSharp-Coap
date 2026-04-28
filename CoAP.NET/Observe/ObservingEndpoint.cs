@@ -12,6 +12,7 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Com.AugustCellars.CoAP.Util;
@@ -26,7 +27,8 @@ namespace Com.AugustCellars.CoAP.Observe
     /// </summary>
     public class ObservingEndpoint
     {
-        private readonly ICollection<ObserveRelation> _relations = new SynchronizedCollection<ObserveRelation>();
+	    private readonly object m_lock = new object();
+        private readonly List<ObserveRelation> _relations = new List<ObserveRelation>();
 
         /// <summary>
         /// Constructs a new observing endpoint.
@@ -46,7 +48,10 @@ namespace Com.AugustCellars.CoAP.Observe
         /// </summary>
         public void AddObserveRelation(ObserveRelation relation)
         {
-            _relations.Add(relation);
+	        lock (m_lock)
+	        {
+		        _relations.Add(relation);
+	        }
         }
 
         /// <summary>
@@ -54,7 +59,10 @@ namespace Com.AugustCellars.CoAP.Observe
         /// </summary>
         public void RemoveObserveRelation(ObserveRelation relation)
         {
-            _relations.Remove(relation);
+	        lock (m_lock)
+	        {
+		        _relations.Remove(relation);
+	        }
         }
 
         /// <summary>

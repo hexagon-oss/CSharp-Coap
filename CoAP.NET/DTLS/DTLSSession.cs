@@ -158,7 +158,7 @@ namespace Com.AugustCellars.CoAP.DTLS
         /// <param name="message">What was the last message we got?</param>
         public void Accept(UDPChannel udpChannel, byte[] message)
         {
-            DtlsServerProtocol serverProtocol = new DtlsServerProtocol(new SecureRandom());
+            DtlsServerProtocol serverProtocol = new DtlsServerProtocol();
 
             DtlsServer server = new DtlsServer(_serverKeys, _userKeys);
             server.TlsEventHandler += OnTlsEvent;

@@ -346,7 +346,7 @@ namespace Com.AugustCellars.CoAP.DTLS
 	        {
 		        TlsEvent e = new TlsEvent(TlsEvent.EventCode.ServerCertificate)
 		        {
-			        Certificate = serverCertificate
+			        Certificate = serverCertificate.Certificate,
 		        };
 
 		        EventHandler<TlsEvent> handler = TlsEventHandler;
