@@ -314,7 +314,7 @@ namespace Com.AugustCellars.CoAP.OSCOAP
                 log.Debug($"Response acknowledges block {block1}");
 
                 BlockwiseStatus status = exchange.OscoreRequestBlockStatus;
-                if (!status.Complete) {
+                if (status != null && !status.Complete) {
                     // TODO: the response code should be CONTINUE. Otherwise deliver
                     // Send next block
                     int currentSize = 1 << (4 + status.CurrentSZX);
