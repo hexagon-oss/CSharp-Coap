@@ -1166,7 +1166,6 @@ namespace Com.AugustCellars.COSE
                 default:
                     throw new CoseException("Not a supported Curve");
                 }
-                break;
 #endif
 
             case GeneralValuesInt.KeyType_EC2: {

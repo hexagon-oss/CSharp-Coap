@@ -4,29 +4,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework>net8.0</TargetFramework>
-	  <PackageProjectUrl>https://github.com/hexagon-oss/CSharp-Coap</PackageProjectUrl>
-	  <RepositoryUrl>https://github.com/hexagon-oss/CSharp-Coap</RepositoryUrl>
+	<TargetFramework>net8.0</TargetFramework>
+	<PackageProjectUrl>https://github.com/hexagon-oss/CSharp-Coap</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/hexagon-oss/CSharp-Coap</RepositoryUrl>
     <PackageId>Com.AugustCellars.CoAP</PackageId>
     <Id>Com.AugustCellars.CoAP</Id>
-    <Version>$(VersionPrefix)</Version>
     <Authors>Jim Schaad, Leica Geosystems AG</Authors>
     <Title>C# Implementation of CoAP</Title>
     <Description>An implementation of various CoAP standards.  Both client and server sides are included.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Copyright>Copyright @2016-20 Jim Schaad</Copyright>
-    <RepositoryUrl>https://github.com/Com-AugustCellars/CoAP-CSharp</RepositoryUrl>
     <PackageTags>COSE CBOR</PackageTags>
     <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
-    <ProjectURL>https://github.com/Com-Augustcellars/CoAP-CSharp</ProjectURL>
+	  <AssemblyVersion>2.1.0.0</AssemblyVersion>
+	  <PackageVersion>2.1.0.0</PackageVersion>
+	  <ProjectURL>https://github.com/Com-Augustcellars/CoAP-CSharp</ProjectURL>
     
     <PackageReleaseNotes>
 		This project is built on the CoAP.NET project of smeshlink which in turn is based on Californium.  As this project did not seem to be maintained any more and I wanted a version in order to test the newer items that are coming out of the IETF CORE working group, I have captured it and started exanding it.
 		It is intented primarily for research and verification work.
-		1.12 (Leica Geosystems AG)
-        - Include COSE dependency into this repository, to simplify dependency updates
-		1.11 (Richter Manuel)
+		2.1 (Leica Geosystems AG)
+		- Include COSE dependency into the same project
+		- Update BouncyCastle to 2.6.2
+		2.0
 		- Add support for .NET 8.0
+		1.11 (Richter Manuel)
 		- Logging rework
 		- External mockability of classes by introducing interfaces.
 		- Added option 10 (Observation lifetime)
@@ -146,11 +148,5 @@
   <ItemGroup>
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
     <PackageReference Include="PeterO.Cbor" Version="4.5.5" />
-    <PackageReference Include="System.Collections.Specialized" Version="4.3.0" />
-    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
-    <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
-    <PackageReference Include="System.Net.Sockets" Version="4.3.0" />
-    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-    <PackageReference Include="System.Threading.ThreadPool" Version="4.3.0" />
   </ItemGroup>
 </Project>
