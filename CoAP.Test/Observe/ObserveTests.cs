@@ -32,8 +32,6 @@ namespace CoAP.Test.Std10.Observe
         private ObserveResource _resource2;
 
         string _expected;
-        int _notifications;
-        bool _failed;
         private CoapConfig _config;
 
 

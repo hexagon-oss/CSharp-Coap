@@ -63,7 +63,7 @@ namespace CoAP.Test.Std10.Observe
             CoapClient coapClient = new CoapClient {
                 EndPoint = clientEndpoint, 
                 Uri = new Uri($"coap://{MockMessagePump.ServerAddress}{_resource.Uri}"), 
-                Timeout = 0
+                Timeout = 1000
             };
 
             Response lastResponse = null;
@@ -82,8 +82,8 @@ namespace CoAP.Test.Std10.Observe
             
             while (true) {
                 Thread.Sleep(1);
-                if (Pump.Queue.Count > 0) {
-                    MockQueueItem item = Pump.Queue.Peek();
+                if (Pump.IsEmpty == false) {
+                    MockQueueItem item = Pump.Peek();
                     switch (item.ItemType) {
                     case MockQueueItem.QueueType.NetworkSend:
                         if (item.Request != null) {
@@ -110,7 +110,7 @@ namespace CoAP.Test.Std10.Observe
 
                     Pump.Pump();
                 }
-                else  if (dataSent) {
+                else if (dataSent) {
                     Assert.IsTrue(trigger.WaitOne(1000));
                     Assert.IsTrue(lastResponse.HasOption(OptionType.Observe));
                     Assert.AreEqual(count, lastResponse.Observe);
@@ -171,8 +171,8 @@ namespace CoAP.Test.Std10.Observe
 
             while (true) {
                 Thread.Sleep(1);
-                if (Pump.Queue.Count > 0) {
-                    MockQueueItem item = Pump.Queue.Peek();
+                if (!Pump.IsEmpty) {
+                    MockQueueItem item = Pump.Peek();
                     switch (item.ItemType) {
                     case MockQueueItem.QueueType.NetworkSend:
                         if (item.Request != null) {
@@ -290,8 +290,8 @@ namespace CoAP.Test.Std10.Observe
 
             while (true) {
                 Thread.Sleep(1);
-                if (Pump.Queue.Count > 0) {
-                    MockQueueItem item = Pump.Queue.Peek();
+                if (!Pump.IsEmpty) {
+                    MockQueueItem item = Pump.Peek();
                     switch (item.ItemType) {
                         case MockQueueItem.QueueType.NetworkSend:
                             if (item.Request != null) {
@@ -401,8 +401,8 @@ namespace CoAP.Test.Std10.Observe
 
             while (true) {
                 Thread.Sleep(1);
-                if (Pump.Queue.Count > 0) {
-                    MockQueueItem item = Pump.Queue.Peek();
+                if (!Pump.IsEmpty) {
+                    MockQueueItem item = Pump.Peek();
                     switch (item.ItemType) {
                         case MockQueueItem.QueueType.NetworkSend:
                             if (item.Request != null) {
@@ -499,8 +499,8 @@ namespace CoAP.Test.Std10.Observe
 
             while (true) {
                 Thread.Sleep(1);
-                if (Pump.Queue.Count > 0) {
-                    MockQueueItem item = Pump.Queue.Peek();
+                if (!Pump.IsEmpty) {
+                    MockQueueItem item = Pump.Peek();
                     switch (item.ItemType) {
                         case MockQueueItem.QueueType.NetworkSend:
                             if (item.Request != null) {
@@ -540,7 +540,7 @@ namespace CoAP.Test.Std10.Observe
                         //  Sleep until it fires a re-registration
                         Assert.IsTrue(reregistered.WaitOne(20 * 1000));
                         count += 1;
-                        Assert.IsTrue(Pump.Queue.Count == 0);
+                        Assert.IsTrue(Pump.IsEmpty);
                         break;
                     }
                     else if (count < 8) {
@@ -602,8 +602,8 @@ namespace CoAP.Test.Std10.Observe
 
             while (true) {
                 Thread.Sleep(1);
-                if (Pump.Queue.Count > 0) {
-                    MockQueueItem item = Pump.Queue.Peek();
+                if (!Pump.IsEmpty) {
+                    MockQueueItem item = Pump.Peek();
                     switch (item.ItemType) {
                         case MockQueueItem.QueueType.NetworkSend:
                             if (item.Request != null) {

@@ -8,16 +8,14 @@ using Org.BouncyCastle.Security;
 
 using PeterO.Cbor;
 
-#pragma warning disable CS0618 // XXX is obsolete
-
 namespace Com.AugustCellars.COSE
 {
 
     public enum Tags
     { 
-        [Obsolete]
+        [Obsolete("Use Encrypt0")]
         Encrypted = 16,
-        [Obsolete]
+        [Obsolete("Use Encrypt")]
         Enveloped =96,
         [Obsolete("Use Tags.Sign")]
         Signed = 98, 

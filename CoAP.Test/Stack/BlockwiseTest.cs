@@ -137,7 +137,7 @@ namespace CoAP.Test.Std10.Stack
 
             pump.SendRequest(r);
             while (pump.Pump()) {
-                MockQueueItem item = pump.Queue.Peek();
+                MockQueueItem item = pump.Peek();
 
                 switch (item.ItemType) {
                 case MockQueueItem.QueueType.ClientSendRequestNetwork:
@@ -149,7 +149,7 @@ namespace CoAP.Test.Std10.Stack
                     break;
 
                 case MockQueueItem.QueueType.ServerSendRequest:
-                    pump.Queue.Dequeue();
+                    pump.Dequeue();
                     Assert.AreEqual(0, item.Request.PayloadSize);
 
                     Response s = new Response(StatusCode.Content);
@@ -159,7 +159,7 @@ namespace CoAP.Test.Std10.Stack
                     break;
 
                 case MockQueueItem.QueueType.ClientSendResponse:
-                    pump.Queue.Dequeue();
+                    pump.Dequeue();
 
                     if (item.Response.PayloadString == responseText) {
                         Assert.IsTrue((success & 1) == 0);
@@ -239,7 +239,7 @@ namespace CoAP.Test.Std10.Stack
             Exchange observeExchange = null;
 
             while (pump.Pump()) {
-                MockQueueItem item = pump.Queue.Peek();
+                MockQueueItem item = pump.Peek();
 
                 switch (item.ItemType) {
                 //  Check conditions of the request when ready to transmit it on the wire
@@ -273,7 +273,7 @@ namespace CoAP.Test.Std10.Stack
 
                 // Server Resource is going to respond
                 case MockQueueItem.QueueType.ServerSendRequest:
-                    pump.Queue.Dequeue();
+                    pump.Dequeue();
                     if (method == Method.POST) {
                         Assert.AreEqual(requestText, item.Request.PayloadString);
                     }
@@ -298,7 +298,7 @@ namespace CoAP.Test.Std10.Stack
                     break;
 
                 case MockQueueItem.QueueType.ClientSendResponse:
-                    pump.Queue.Dequeue();
+                    pump.Dequeue();
 
                     if (Parallel && item.Exchange.Request.UriPath == "/resource2") {
                         Assert.AreEqual(currentResourceContent[1], item.Response.PayloadString);

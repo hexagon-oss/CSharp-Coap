@@ -27,11 +27,11 @@ namespace CoAP.Test.Std10.MockDriver
 {
     public class MockMessagePump
     {
-        /// <summary>
-        /// Queue of network events that are still to be processed.
-        /// If the mock deliverer is used, then the delivery events will also be on the queue.
-        /// </summary>
-        public Queue<MockQueueItem> Queue { get; } = new Queue<MockQueueItem>();
+	    /// <summary>
+	    /// Queue of network events that are still to be processed.
+	    /// If the mock deliverer is used, then the delivery events will also be on the queue.
+	    /// </summary>
+	    private Queue<MockQueueItem> m_queue;
 
 
         public MockStack ClientStack { get; set; }
@@ -46,12 +46,15 @@ namespace CoAP.Test.Std10.MockDriver
 
         private MockEndpoint ClientEndpoint { get; }
 
+        public bool IsEmpty => m_queue.Count == 0;
+
         public MockMessagePump()
         {
-
+	        m_queue = new Queue<MockQueueItem>();
         }
 
         public MockMessagePump(Type[] layers, ICoapConfig configClient = null, ICoapConfig configServer = null)
+			: this()
         {
             if (configClient == null) {
                 configClient = CoapConfig.Default;
@@ -73,7 +76,22 @@ namespace CoAP.Test.Std10.MockDriver
             AddEndpointToAddress((IPEndPoint) MulticastAddress, x);
         }
 
-        public MockEndpoint AddClientEndpoint(string endpointName, IPEndPoint endPoint, ICoapConfig config, Type[] layers, bool useMockDelivery = false)
+        public void Enqueue(MockQueueItem item)
+        {
+            m_queue.Enqueue(item);
+        }
+
+        public MockQueueItem Peek()
+        {
+	        return m_queue.Peek();
+        }
+
+		public MockQueueItem Dequeue()
+		{
+			return m_queue.Dequeue();
+		}
+
+		public MockEndpoint AddClientEndpoint(string endpointName, IPEndPoint endPoint, ICoapConfig config, Type[] layers, bool useMockDelivery = false)
         {
             return AddEndPoint(endpointName, endPoint, config, layers, false, useMockDelivery);
         }
@@ -151,13 +169,13 @@ namespace CoAP.Test.Std10.MockDriver
         {
             request.EndPoint = ClientEndpoint;
             MockQueueItem item = new MockQueueItem(MockQueueItem.QueueType.ClientSendRequest, request);
-            Queue.Enqueue(item);
+            m_queue.Enqueue(item);
         }
 
         public void SendResponse(Response response, Exchange exchange)
         {
             MockQueueItem item = new MockQueueItem(MockQueueItem.QueueType.ServerSendResponse, response, exchange);
-            Queue.Enqueue(item);
+            m_queue.Enqueue(item);
             response.Session = exchange.Request.Session;
         }
 
@@ -165,16 +183,16 @@ namespace CoAP.Test.Std10.MockDriver
         {
             List<MockStack> serverStacks;
 
-            if (Queue.Count == 0) {
+            if (m_queue.Count == 0) {
                 return false;
             }
 
-            MockQueueItem item = Queue.Peek();
+            MockQueueItem item = m_queue.Peek();
 
             switch (item.ItemType) {
             //  state #1 - client requested a send of a request
             case MockQueueItem.QueueType.ClientSendRequest:
-                Queue.Dequeue();
+                m_queue.Dequeue();
                 if (item.Request.Destination == null) {
                     item.Request.Destination = ServerAddress;
                 }
@@ -184,7 +202,7 @@ namespace CoAP.Test.Std10.MockDriver
 
             //  state #2 - client ready for network send
             case MockQueueItem.QueueType.ClientSendRequestNetwork:
-                Queue.Dequeue();
+                m_queue.Dequeue();
                 MessageEncoder encoder = new Spec.MessageEncoder18();
                 byte[] encodedRequest = encoder.Encode(item.Request);
                 EndPoint destination = item.Request.Destination;
@@ -192,12 +210,12 @@ namespace CoAP.Test.Std10.MockDriver
                 item = new MockQueueItem(MockQueueItem.QueueType.ServerSendRequestNetwork, encodedRequest);
                 item.Source = ClientAddress;
                 item.Destination = destination;
-                Queue.Enqueue(item);
+                m_queue.Enqueue(item);
                 break;
 
             //  state #3 - server receives network send
             case MockQueueItem.QueueType.ServerSendRequestNetwork:
-                Queue.Dequeue();
+                m_queue.Dequeue();
                 serverStacks = ServerStacks[item.Destination];
                 foreach (MockStack s in serverStacks) {
                     s.MyEndPoint.ReceiveData(item);
@@ -212,7 +230,7 @@ namespace CoAP.Test.Std10.MockDriver
 
             // state #5 - server sends an response
             case MockQueueItem.QueueType.ServerSendResponse:
-                Queue.Dequeue();
+                m_queue.Dequeue();
                 serverStacks = ServerStacks[item.Source];
                 Assert.AreEqual(1, serverStacks.Count);
                 foreach (MockStack s in serverStacks) {
@@ -223,19 +241,19 @@ namespace CoAP.Test.Std10.MockDriver
 
             // state #6 - server ready to send over network
             case MockQueueItem.QueueType.ServerSendResponseNetwork:
-                Queue.Dequeue();
+                m_queue.Dequeue();
                 encoder = new Spec.MessageEncoder18();
                 byte[] encodedResponse = encoder.Encode(item.Response);
 
                 MockQueueItem item2 = new MockQueueItem(MockQueueItem.QueueType.ClientSendResponseNetwork, encodedResponse);
                 item2.Source = item.Response.Source;
                 item2.Destination = item.Response.Destination;
-                Queue.Enqueue(item2);
+                m_queue.Enqueue(item2);
                 break;
 
             // state #7 - client receives response over network
             case MockQueueItem.QueueType.ClientSendResponseNetwork:
-                Queue.Dequeue();
+                m_queue.Dequeue();
 
                 serverStacks = ServerStacks[item.Destination];
                 Assert.AreEqual(1, serverStacks.Count);
@@ -250,19 +268,19 @@ namespace CoAP.Test.Std10.MockDriver
 
             // state #8 - client application to process response
             case MockQueueItem.QueueType.ClientSendEmptyMessageNetwork:
-                Queue.Dequeue();
+                m_queue.Dequeue();
                 encoder = new Spec.MessageEncoder18();
                 encodedRequest = encoder.Encode(item.EmptyMessage);
 
                 item2 = new MockQueueItem(MockQueueItem.QueueType.ServerSendEmptyMessageNetwork, encodedRequest);
                 item2.Source = item.Source;
                 item2.Destination = item.EmptyMessage.Destination;
-                Queue.Enqueue(item2);
+                m_queue.Enqueue(item2);
                 break;
 
             //  state #3 - server receives network send
             case MockQueueItem.QueueType.ServerSendEmptyMessageNetwork:
-                Queue.Dequeue();
+                m_queue.Dequeue();
                 serverStacks = ServerStacks[item.Destination];
                 foreach (MockStack s in serverStacks) {
                     s.MyEndPoint.ReceiveData(item);
@@ -270,7 +288,7 @@ namespace CoAP.Test.Std10.MockDriver
                 break;
 
                 case MockQueueItem.QueueType.NetworkSend:
-                    Queue.Dequeue();
+                    m_queue.Dequeue();
                     List<MockChannel> channels = ChannelsByEndpoint[item.Destination];
 
                     foreach (MockChannel c in channels) {
@@ -285,7 +303,7 @@ namespace CoAP.Test.Std10.MockDriver
                 break;
             }
 
-            return Queue.Count > 0;
+            return m_queue.Count > 0;
         }
     }
 }

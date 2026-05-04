@@ -162,7 +162,7 @@ namespace CoAP.Test.Std10.MockDriver
             }
 
             if (rule == DeliveryInstrutions.Deliver) {
-                Pump.Queue.Enqueue(item);
+                Pump.Enqueue(item);
             }
 
             if (DelayList.Count > 0) {
@@ -170,7 +170,7 @@ namespace CoAP.Test.Std10.MockDriver
                 foreach (TransportItem t in DelayList) {
                     t.DelayCount -= 1;
                     if (t.DelayCount == 0) {
-                        Pump.Queue.Enqueue(t.Item);
+                        Pump.Enqueue(t.Item);
                         removeCount += 1;
                     }
                 }
