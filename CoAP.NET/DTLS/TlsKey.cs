@@ -7,6 +7,7 @@ using Com.AugustCellars.WebToken.CWT;
 #endif
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto.Tls;
+using Org.BouncyCastle.Tls;
 #if SUPPORT_TLS_CWT
 using Com.AugustCellars.WebToken;
 #endif
@@ -26,7 +27,7 @@ namespace Com.AugustCellars.CoAP.DTLS
         
         public  X509CertificateStructure[] X509Certificate { get; }
 
-        public byte CertType { get; }
+        public short CertType { get; }
 
         /// <summary>
         /// Create a PSK version of a TLS Key Pair

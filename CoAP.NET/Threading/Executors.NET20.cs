@@ -9,6 +9,8 @@
  * Please see README for more information.
  */
 
+using Com.AugustCellars.CoAP.Threading;
+
 namespace CoAP.Threading
 {
     static partial class Executors

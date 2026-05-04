@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Com.AugustCellars.COSE;
 using Org.BouncyCastle.Crypto.Tls;
+using Org.BouncyCastle.Tls;
 
 namespace Com.AugustCellars.CoAP
 {

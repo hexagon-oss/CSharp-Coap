@@ -221,12 +221,8 @@ namespace Com.AugustCellars.CoAP.Server.Resources
             return _attributes.GetOrAdd(name, key =>
             {
                 List<String> list = new List<String>();
-#if DNX451
-				return new SynchronizedCollection<String>(((ICollection)list).SyncRoot, list);
-#else
-				return new SynchronizedCollection<String>(((ICollection)list).SyncRoot, list, false);
-#endif
-			});
+                return list; // ??? Target is a list of strings, but we don't have any content?
+            });
         }
 
         static Boolean IsEmpty(IEnumerable<String> values)

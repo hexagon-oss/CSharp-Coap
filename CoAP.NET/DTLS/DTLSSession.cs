@@ -9,6 +9,7 @@ using PeterO.Cbor;
 
 using Org.BouncyCastle.Crypto.Tls;
 using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Tls;
 using DataReceivedEventArgs = Com.AugustCellars.CoAP.Channel.DataReceivedEventArgs;
 
 namespace Com.AugustCellars.CoAP.DTLS
@@ -134,7 +135,7 @@ namespace Com.AugustCellars.CoAP.DTLS
 
             _client.TlsEventHandler += OnTlsEvent;
 
-            DtlsClientProtocol clientProtocol = new DtlsClientProtocol(new SecureRandom());
+            DtlsClientProtocol clientProtocol = new DtlsClientProtocol();
 
             _transport.UDPChannel = udpChannel;
             AuthenticationKey = _userKey.PrivateKey;
@@ -157,7 +158,7 @@ namespace Com.AugustCellars.CoAP.DTLS
         /// <param name="message">What was the last message we got?</param>
         public void Accept(UDPChannel udpChannel, byte[] message)
         {
-            DtlsServerProtocol serverProtocol = new DtlsServerProtocol(new SecureRandom());
+            DtlsServerProtocol serverProtocol = new DtlsServerProtocol();
 
             DtlsServer server = new DtlsServer(_serverKeys, _userKeys);
             server.TlsEventHandler += OnTlsEvent;
@@ -346,22 +347,26 @@ namespace Com.AugustCellars.CoAP.DTLS
                 return limit;
             }
 
-            public int Receive(byte[] buf, int off, int len, int waitMillis)
+            public int Receive(Span<byte> buf, int waitMillis)
+            {
+                byte[] buffer = new byte[buf.Length];
+                int size = Receive(buffer, 0, buffer.Length, waitMillis);
+                if (size > 0) {
+                    Array.Copy(buffer, 0, buf.ToArray(), 0, size);
+                }
+                return size;
+			}
+
+			public int Receive(byte[] buf, int off, int len, int waitMillis)
             {
                 lock (Queue) {
                     if (Queue.Count < 1) {
                         try {
                             Monitor.Wait(Queue, waitMillis);
                         }
-#if NETSTANDARD1_3
-                        catch (ThreadStateException) {
-                            // TODO keep waiting until full wait expired?
-                        }
-#else
                         catch (ThreadInterruptedException) {
                             // TODO Keep waiting until full wait expired?
                         }
-#endif
                         if (Queue.Count < 1) {
                             return -1;
                         }
@@ -376,6 +381,12 @@ namespace Com.AugustCellars.CoAP.DTLS
                     return copyLength;
                 }
             }
+
+			public void Send(ReadOnlySpan<byte> buffer)
+			{
+                // Stupid, but it's anyway what's currently supported on the lower level
+				UDPChannel.Send(buffer.ToArray(), UDPChannel, _ep);
+			}
 
             public void Send(byte[] buf, int off, int len)
             {

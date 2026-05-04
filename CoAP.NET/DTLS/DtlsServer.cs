@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Org.BouncyCastle.Crypto.Tls;
@@ -13,6 +14,8 @@ using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Tls;
+using Org.BouncyCastle.Tls.Crypto.Impl.BC;
 using Org.BouncyCastle.X509;
 using PeterO.Cbor;
 
@@ -28,6 +31,7 @@ namespace Com.AugustCellars.CoAP.DTLS
         public KeySet CwtTrustKeySet { get; set; }
 
         public DtlsServer(TlsKeyPairSet serverKeys, KeySet userKeys)
+			: base(new BcTlsCrypto(new SecureRandom()))
         {
             _serverKeys = serverKeys;
             _userKeys = userKeys;
@@ -35,8 +39,8 @@ namespace Com.AugustCellars.CoAP.DTLS
             mPskIdentityManager.TlsEventHandler += OnTlsEvent;
         }
 
-        protected override ProtocolVersion MinimumVersion => ProtocolVersion.DTLSv10;
-        protected override ProtocolVersion MaximumVersion => ProtocolVersion.DTLSv12;
+        protected ProtocolVersion MinimumVersion => ProtocolVersion.DTLSv10;
+        protected ProtocolVersion MaximumVersion => ProtocolVersion.DTLSv12;
 
         public OneKey AuthenticationKey => mPskIdentityManager.AuthenticationKey;
         public Certificate AuthenticationCertificate { get; private set; }
@@ -51,7 +55,7 @@ namespace Com.AugustCellars.CoAP.DTLS
             }
         }
 
-        protected override int[] GetCipherSuites()
+        public override int[] GetCipherSuites()
         {
             int[] i = new int[] {
                 CipherSuite.TLS_PSK_WITH_AES_128_CCM_8,
@@ -87,7 +91,7 @@ namespace Com.AugustCellars.CoAP.DTLS
 
         public override TlsCredentials GetCredentials()
         {
-            int keyExchangeAlgorithm = TlsUtilities.GetKeyExchangeAlgorithm(mSelectedCipherSuite);
+            int keyExchangeAlgorithm = TlsUtilities.GetKeyExchangeAlgorithm(m_selectedCipherSuite);
 
             switch (keyExchangeAlgorithm) {
             case KeyExchangeAlgorithm.DHE_PSK:
@@ -96,10 +100,7 @@ namespace Com.AugustCellars.CoAP.DTLS
                 return null;
 
             case KeyExchangeAlgorithm.RSA_PSK:
-                return GetRsaEncryptionCredentials();
-
-            case KeyExchangeAlgorithm.ECDHE_ECDSA:
-                return GetECDsaSignerCredentials();
+	            return GetRsaEncryptionCredentials();
 
             default:
                 /* Note: internal error here; selected a key exchange we don't implement! */
@@ -136,204 +137,19 @@ namespace Com.AugustCellars.CoAP.DTLS
             }
         }
 #endif
-        protected override TlsSignerCredentials GetECDsaSignerCredentials()
+        protected override TlsCredentialedSigner GetECDsaSignerCredentials()
         {
-            byte[] certTypes;
-
-            if (mClientExtensions.Contains(ExtensionType.server_certificate_type)) {
-                certTypes = (byte[]) mClientExtensions[ExtensionType.server_certificate_type];
-            }
-            else {
-                certTypes = new byte[]{CertificateType.X509};
-            }
-
-            foreach (byte b in certTypes) {
-                if (b == CertificateType.X509)
-                {
-                    foreach (TlsKeyPair kp in _serverKeys)
-                    {
-                        if (b != kp.CertType) continue;
-
-                        OneKey k = kp.PrivateKey;
-                        if (k.HasKeyType((int)GeneralValuesInt.KeyType_EC2) &&
-                            k.HasAlgorithm(AlgorithmValues.ECDSA_256))
-                        {
-
-                            return new DefaultTlsSignerCredentials(
-                                mContext,
-                                new Certificate(kp.X509Certificate), 
-                                kp.PrivateKey.AsPrivateKey(),
-                                new SignatureAndHashAlgorithm(HashAlgorithm.sha256, SignatureAlgorithm.ecdsa));
-                        }
-                    }
-                }
-#if SUPPORT_RPK
-                if (b == CertificateType.RawPublicKey) {
-                    foreach (TlsKeyPair kp in _serverKeys) {
-                        if (b != kp.CertType) continue;
-
-                        OneKey k = kp.PublicKey;
-                        if (k.HasKeyType((int) GeneralValuesInt.KeyType_EC2) &&
-                            k.HasAlgorithm(AlgorithmValues.ECDSA_256)) {
-
-                            AsymmetricKeyParameter param = k.AsPublicKey();
-
-                            SubjectPublicKeyInfo spi = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(param);
-
-                            return new DefaultTlsSignerCredentials(mContext, new RawPublicKey(spi), kp.PrivateKey.AsPrivateKey(),
-                                                                   new SignatureAndHashAlgorithm(
-                                                                       HashAlgorithm.sha256, SignatureAlgorithm.ecdsa));
-                        }
-                    }
-                }
-#endif
-#if SUPPORT_TLS_CWT
-                if (b == CertificateType.CwtPublicKey) {
-                    foreach (TlsKeyPair kp in _serverKeys) {
-                        if (b != kp.CertType) continue;
-
-                        OneKey k = kp.PrivateKey;
-                        if (k.HasKeyType((int) GeneralValuesInt.KeyType_EC2) &&
-                            k.HasAlgorithm(AlgorithmValues.ECDSA_256)) {
-
-                            CwtPublicKey cwtKey = new CwtPublicKey(kp.PublicCwt.EncodeToBytes());
-                            AsymmetricKeyParameter pubKey = kp.PublicCwt.Cnf.CoseKey.AsPublicKey();
-                            cwtKey.SetSubjectPublicKeyInfo(SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(pubKey));
-
-                            return new DefaultTlsSignerCredentials(
-                                mContext, cwtKey, kp.PrivateKey.AsPrivateKey(),
-                                new SignatureAndHashAlgorithm(HashAlgorithm.sha256, SignatureAlgorithm.ecdsa));
-                        }
-                    }
-                }
-#endif
-            }
-
-            // If we did not fine appropriate signer credentials - ask for help
-
-            TlsEvent e = new TlsEvent(TlsEvent.EventCode.SignCredentials) {
-                CipherSuite = KeyExchangeAlgorithm.ECDHE_ECDSA
-            };
-
-            EventHandler<TlsEvent> handler = TlsEventHandler;
-            if (handler != null) {
-                handler(this, e);
-            }
-
-            if (e.SignerCredentials != null) return e.SignerCredentials;
             throw new TlsFatalAlert(AlertDescription.internal_error);
         }
 
-
-        public override TlsKeyExchange GetKeyExchange()
-        {
-            int keyExchangeAlgorithm = TlsUtilities.GetKeyExchangeAlgorithm(mSelectedCipherSuite);
-
-            switch (keyExchangeAlgorithm) {
-                case KeyExchangeAlgorithm.DHE_PSK:
-                case KeyExchangeAlgorithm.ECDHE_PSK:
-                case KeyExchangeAlgorithm.PSK:
-                case KeyExchangeAlgorithm.RSA_PSK:
-                    return CreatePskKeyExchange(keyExchangeAlgorithm);
-
-                case KeyExchangeAlgorithm.ECDH_anon:
-                case KeyExchangeAlgorithm.ECDH_ECDSA:
-                case KeyExchangeAlgorithm.ECDH_RSA:
-                    return CreateECDHKeyExchange(keyExchangeAlgorithm);
-
-            case KeyExchangeAlgorithm.ECDHE_ECDSA:
-                return CreateECDheKeyExchange(keyExchangeAlgorithm);
-
-            default:
-                    /*
-                        * Note: internal error here; the TlsProtocol implementation verifies that the
-                        * server-selected cipher suite was in the list of client-offered cipher suites, so if
-                        * we now can't produce an implementation, we shouldn't have offered it!
-                        */
-                    throw new TlsFatalAlert(AlertDescription.internal_error);
-            }
-        }
-
-        protected virtual TlsKeyExchange CreatePskKeyExchange(int keyExchange)
-        {
-            return new TlsPskKeyExchange(keyExchange, mSupportedSignatureAlgorithms, null, mPskIdentityManager, null,
-                GetDHParameters(), mNamedCurves, mClientECPointFormats, mServerECPointFormats);
-        }
-
-        protected override TlsKeyExchange CreateECDHKeyExchange(int keyExchange)
-        {
-            byte[] serverCertTypes;
-            if (mClientExtensions.Contains(ExtensionType.server_certificate_type)) {
-                serverCertTypes = (byte[]) mClientExtensions[ExtensionType.server_certificate_type];
-            }
-            return new TlsECDHKeyExchange(keyExchange, mSupportedSignatureAlgorithms, mNamedCurves, mClientECPointFormats,
-                mServerECPointFormats);
-        }
-
-#if SUPPORT_RPK
-        public override byte GetClientCertificateType(byte[] certificateTypes)
-        {
-            TlsEvent e = new TlsEvent(TlsEvent.EventCode.ClientCertType) {
-                Bytes = certificateTypes,
-                Byte = 0xff
-            };
-
-            EventHandler<TlsEvent> handler = TlsEventHandler;
-            if (handler != null) {
-                handler(this, e);
-            }
-
-            if (e.Byte != 0xff) {
-                return e.Byte;
-            }
-
-            foreach (byte type in certificateTypes) {
-                if (type == 1) return type;
-#if SUPPORT_RPK
-                if (type == 2) return type;  // Assume we only support Raw Public Key
-#endif
-#if SUPPORT_TLS_CWT
-                if (type == 254) return type;
-#endif
-            }
-
-
-            throw new TlsFatalAlert(AlertDescription.handshake_failure);
-        }
-
-        public override byte GetServerCertificateType(byte[] certificateTypes)
-        {
-            TlsEvent e = new TlsEvent(TlsEvent.EventCode.ServerCertType) {
-                Bytes = certificateTypes,
-                Byte = 0xff
-            };
-
-            EventHandler<TlsEvent> handler = TlsEventHandler;
-            if (handler != null) {
-                handler(this, e);
-            }
-
-            if (e.Byte != 0xff) {
-                return e.Byte;
-            }
-
-            foreach (byte type in certificateTypes) {
-                if (type == 1) return type;
-                if (type == 2) return type;  // Assume we only support Raw Public Key
-                if (type == 254) return type; 
-            }
-            throw new TlsFatalAlert(AlertDescription.handshake_failure);
-        }
-#endif
-
         public override CertificateRequest GetCertificateRequest()
         {
-            byte[] certificateTypes = new byte[]{ ClientCertificateType.rsa_sign,
+            short[] certificateTypes = new short[]{ ClientCertificateType.rsa_sign,
                 ClientCertificateType.ecdsa_sign };
 
-            IList serverSigAlgs = null;
-            if (TlsUtilities.IsSignatureAlgorithmsExtensionAllowed(mServerVersion)) {
-                serverSigAlgs = TlsUtilities.GetDefaultSupportedSignatureAlgorithms();
+            IList<SignatureAndHashAlgorithm> serverSigAlgs = null;
+            if (TlsUtilities.IsSignatureAlgorithmsExtensionAllowed(GetServerVersion())) {
+                serverSigAlgs = TlsUtilities.GetDefaultSupportedSignatureAlgorithms(m_context);
             }
 
             return new CertificateRequest(certificateTypes, serverSigAlgs, null);

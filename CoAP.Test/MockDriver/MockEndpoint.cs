@@ -90,7 +90,7 @@ namespace CoAP.Test.Std10.MockDriver
             response.Source = MyAddress;
             MockQueueItem item = new MockQueueItem(MockQueueItem.QueueType.ServerSendResponse, response, exchange);
             item.Source = MyAddress;
-            Pump.Queue.Enqueue(item);
+            Pump.Enqueue(item);
         }
 
         public void Start()
@@ -174,7 +174,7 @@ namespace CoAP.Test.Std10.MockDriver
                 MockQueueItem item = new MockQueueItem(MockQueueItem.QueueType.ClientSendEmptyMessageNetwork, rst);
                 item.Destination = message.Destination;
                 item.Source = MyAddress;
-                Pump.Queue.Enqueue(item);
+                Pump.Enqueue(item);
             }
         }
 
@@ -184,7 +184,7 @@ namespace CoAP.Test.Std10.MockDriver
             request.Session = Session;
 
             MockQueueItem item = new MockQueueItem(MockQueueItem.QueueType.ClientSendRequestNetwork, request);
-            Pump.Queue.Enqueue(item);
+            Pump.Enqueue(item);
         }
 
         void IOutbox.SendResponse(Exchange exchange, Response response)
@@ -206,7 +206,7 @@ namespace CoAP.Test.Std10.MockDriver
             Matcher.SendResponse(exchange, response);
 
             MockQueueItem item = new MockQueueItem(MockQueueItem.QueueType.ServerSendResponseNetwork, response);
-            Pump.Queue.Enqueue(item);
+            Pump.Enqueue(item);
 
         }
 
@@ -218,7 +218,7 @@ namespace CoAP.Test.Std10.MockDriver
                 MockQueueItem item = new MockQueueItem(MockQueueItem.QueueType.ClientSendEmptyMessageNetwork, message);
                 item.Destination = message.Destination;
                 item.Source = MyAddress;
-                Pump.Queue.Enqueue(item);
+                Pump.Enqueue(item);
             }
 
         }

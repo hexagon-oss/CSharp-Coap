@@ -13,14 +13,14 @@ namespace CoAP.Test.Std10.MockDriver
         public void DeliverRequest(Exchange exchange)
         {
             MockQueueItem item = new MockQueueItem(MockQueueItem.QueueType.ServerSendRequest, exchange.Request, exchange);
-            Pump.Queue.Enqueue(item);
+            Pump.Enqueue(item);
         }
 
         /// <inheritdoc />
         public void DeliverResponse(Exchange exchange, Response response)
         {
             MockQueueItem item = new MockQueueItem(MockQueueItem.QueueType.ClientSendResponse, response, exchange);
-            Pump.Queue.Enqueue(item);
+            Pump.Enqueue(item);
         }
     }
 }

@@ -1,0 +1,110 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net462;netcoreapp2.0</TargetFrameworks>
+    <PackageId>Com.AugustCellars.COSE</PackageId>
+    <Id>Com.AugustCellars.COSE</Id>
+    <PackageVersion>1.6.0</PackageVersion>
+    <Version>1.6.0</Version>
+    <Authors>Jim Schaad</Authors>
+    <Description>An implementation of the CBOR Object Signing and Encryption standards.</Description>
+    <PackageLicenseExpression>EPL-2.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Copyright>Copyright @2016-20 Jim Schaad</Copyright>
+    <PackageTags>COSE CBOR</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    
+    <PackageReleaseNotes>
+1.6.0
+  - Update to use CBOR version 4.0 due to a security parsing problem.
+  - Update to 1.8.5 of BouncyCastle
+1.5.0
+  - Add NetStandard2.0 as a new target
+  - Internal changes to make clr compliant
+  - Fix errors using X25519 and X448 as encryption algorithms
+  - Add fuctions to create OneKey from imported BouncyCastle keys
+  - Add public functions to be able to sign and verify with OneKey objects
+1.4.0
+  - Move to use Bouncy Castle version of EdDSA
+  - Add full counter signature support
+  - Pit in an initial hash signature for HSS-LMS, not finalized
+1.3.0
+  - Upgrade version of Bouncy Castle being used
+  - Produce a larger number of versions specifically NetStandard 1.0 and 2.0
+1.2.0
+  - Update the version of CBOR library used again
+  - Add EdDSA signature algorithm and testing
+1.1.0.0
+  - Update net 4.5 file to use latest CBOR
+  - Switch to use NetStandard 1.0 rather than Net 4.5
+  - Remove Net 4.0 distribution
+1.0.5
+  - Add strong signature to the net 4.5 file.      
+1.0.4
+  - Add user data field to OneKey class
+1.0.3
+  - Make the library be CLS Compliant and mark it as such.
+  - Apply strong signing to distribution
+1.0.2
+  - Previous release had the prior net4 library.
+1.0.1
+  - path for the 4.0 version has changed
+  - Add new filter functions to OneKey for use with KeySet.Where()
+  - Added functions
+1.0.0
+  * Name space has been changed from COSE to Com.AugustCellars.COSE
+    </PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <AssemblyName>COSE</AssemblyName>
+    <RootNamespace>Com.AugustCellars.COSE</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Deploy|Any CPU' ">
+    <AssemblyOriginatorKeyFile>AugustCellarsStrongKey.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Deploy|AnyCPU' ">
+    <AssemblyOriginatorKeyFile>AugustCellarsStrongKey.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PeterO.Cbor" Version="4.0.0" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Attributes.cs" />
+    <Compile Include="ChaCha20Poly1305.cs" />
+    <Compile Include="CounterSign.cs" />
+    <Compile Include="Encrypt0Mesage.cs" />
+    <Compile Include="EncryptCommon.cs" />
+    <Compile Include="EncryptMessage.cs" />
+    <Compile Include="HashSig.cs" />
+    <Compile Include="Key.cs" />
+    <Compile Include="KeySet.cs" />
+    <Compile Include="MACMessage.cs" />
+    <Compile Include="Message.cs" />
+    <Compile Include="PrettyPrint.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sign0Message.cs" />
+    <Compile Include="Signer.cs" />
+    <Compile Include="SignMessage.cs" />
+    <Compile Include="X25519.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AugustCellarsStrongKey.snk" />
+  </ItemGroup>
+  
+</Project>
