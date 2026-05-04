@@ -121,7 +121,10 @@ namespace Com.AugustCellars.CoAP.OSCOAP
 
         public int GenerateBytes(Span<byte> output)
         {
-	        throw new NotImplementedException();
+	        byte[] data = new byte[output.Length];
+	        GenerateBytes(data, 0, output.Length);
+            data.CopyTo(output);
+            return output.Length;
         }
 
         /// <summary>

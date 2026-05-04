@@ -223,45 +223,6 @@ namespace Com.AugustCellars.CoAP.DTLS
             }
         }
 
-        public TlsKeyExchange GetKeyExchange()
-        {
-            int keyExchangeAlgorithm = TlsUtilities.GetKeyExchangeAlgorithm(m_cipherSuites.FirstOrDefault(0));
-
-            switch (keyExchangeAlgorithm) {
-            ////case KeyExchangeAlgorithm.DHE_PSK:
-            ////case KeyExchangeAlgorithm.ECDHE_PSK:
-            ////case KeyExchangeAlgorithm.PSK:
-            ////case KeyExchangeAlgorithm.RSA_PSK:
-            ////    return CreatePskKeyExchange(keyExchangeAlgorithm);
-
-            ////case KeyExchangeAlgorithm.ECDH_anon:
-            ////case KeyExchangeAlgorithm.ECDH_ECDSA:
-            ////case KeyExchangeAlgorithm.ECDH_RSA:
-            ////    return CreateECDHKeyExchange(keyExchangeAlgorithm);
-
-            default:
-                /*
-                    * Note: internal error here; the TlsProtocol implementation verifies that the
-                    * server-selected cipher suite was in the list of client-offered cipher suites, so if
-                    * we now can't produce an implementation, we shouldn't have offered it!
-                    */
-                throw new TlsFatalAlert(AlertDescription.internal_error);
-            }
-        }
-
-        private static BigInteger ConvertBigNum(CBORObject cbor)
-        {
-            byte[] rgb = cbor.GetByteString();
-            byte[] rgb2 = new byte[rgb.Length + 2];
-            rgb2[0] = 0;
-            rgb2[1] = 0;
-            for (int i = 0; i < rgb.Length; i++) {
-                rgb2[i + 2] = rgb[i];
-            }
-
-            return new BigInteger(rgb2);
-        }
-
         /// <summary>
         /// We don't care if we cannot do secure renegotiation at this time.
         /// This needs to be reviewed in the future M00TODO
