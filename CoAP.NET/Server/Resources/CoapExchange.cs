@@ -42,6 +42,9 @@ namespace Com.AugustCellars.CoAP.Server.Resources
             get => _exchange.Request;
         }
 
+        public Exchange ExchangeConfiguration
+	        => _exchange;
+
         /// <summary>
         /// Gets or sets the Location-Path for the response.
         /// </summary>
