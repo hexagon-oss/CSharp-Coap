@@ -454,7 +454,7 @@ namespace Com.AugustCellars.CoAP
                     bytes = bytes2;
                 }
                 byte[] intBytes = new byte[4];
-                Array.Copy(bytes, 0, intBytes, 0, bytes.Length);
+                Array.Copy(bytes, 0, intBytes, 0, Math.Min(4, bytes.Length));
 
                 return BitConverter.ToInt32(intBytes, 0);
             }
@@ -503,7 +503,7 @@ namespace Com.AugustCellars.CoAP
                     bytes = bytes2;
                 }
                 byte[] intBytes = new byte[8];
-                Array.Copy(bytes, 0, intBytes, 0, bytes.Length);
+                Array.Copy(bytes, 0, intBytes, 0, Math.Min(8, bytes.Length));
 
                 return BitConverter.ToInt64(intBytes, 0);
             }
